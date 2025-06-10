@@ -1,0 +1,35 @@
+{
+  "collectionName": "components_basicinfo_basic_infos",
+  "info": {
+    "displayName": "basicInfo",
+    "icon": "alien",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "companyName": {
+      "type": "string"
+    },
+    "companyLogo": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "img": {
+      "allowedTypes": [
+        "images"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "stefstef": {
+      "type": "string"
+    }
+  }
+}

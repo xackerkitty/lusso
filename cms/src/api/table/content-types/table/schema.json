@@ -1,0 +1,61 @@
+{
+  "kind": "collectionType",
+  "collectionName": "tables",
+  "info": {
+    "singularName": "table",
+    "pluralName": "tables",
+    "displayName": "Table"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "position": {
+      "type": "integer"
+    },
+    "club_logo": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "club_name": {
+      "type": "string"
+    },
+    "played": {
+      "type": "integer"
+    },
+    "win": {
+      "type": "integer"
+    },
+    "draw": {
+      "type": "integer"
+    },
+    "loss": {
+      "type": "integer"
+    },
+    "goals_for": {
+      "type": "integer"
+    },
+    "goals_against": {
+      "type": "integer"
+    },
+    "goal_difference": {
+      "type": "integer"
+    },
+    "points": {
+      "type": "integer"
+    },
+    "next_match_name": {
+      "type": "string"
+    },
+    "next_match_link": {
+      "type": "string"
+    }
+  }
+}

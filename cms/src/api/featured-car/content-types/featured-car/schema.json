@@ -1,0 +1,37 @@
+{
+  "kind": "collectionType",
+  "collectionName": "featured_cars",
+  "info": {
+    "singularName": "featured-car",
+    "pluralName": "featured-cars",
+    "displayName": "featuredCar",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "carTitle": {
+      "type": "string"
+    },
+    "carDesc": {
+      "type": "text"
+    },
+    "carPhoto": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "featuredCar": {
+      "type": "component",
+      "repeatable": true,
+      "component": "featured-car.featured-car"
+    }
+  }
+}

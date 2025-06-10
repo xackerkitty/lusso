@@ -1,0 +1,67 @@
+{
+  "kind": "collectionType",
+  "collectionName": "luxury_heroes",
+  "info": {
+    "singularName": "luxury-hero",
+    "pluralName": "luxury-heroes",
+    "displayName": "Luxury Hero",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "cta": {
+      "type": "string"
+    },
+    "videoUrl": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "videoPoster": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "basicinfo": {
+      "type": "component",
+      "repeatable": false,
+      "component": "basicinfo.basic-info"
+    },
+    "heroSection": {
+      "type": "component",
+      "repeatable": false,
+      "component": "hero-section.herosection"
+    },
+    "featuredCar": {
+      "type": "component",
+      "repeatable": true,
+      "component": "featured-car.featured-car"
+    },
+    "aboutUsSection": {
+      "type": "component",
+      "repeatable": false,
+      "component": "about-us-section.about-us-section"
+    }
+  }
+}

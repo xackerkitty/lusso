@@ -1,0 +1,57 @@
+{
+  "kind": "collectionType",
+  "collectionName": "results",
+  "info": {
+    "singularName": "result",
+    "pluralName": "results",
+    "displayName": "Result"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "date": {
+      "type": "datetime",
+      "required": true
+    },
+    "home_team": {
+      "type": "string",
+      "required": true
+    },
+    "away_team": {
+      "type": "string",
+      "required": true
+    },
+    "home_score": {
+      "type": "integer",
+      "required": true
+    },
+    "away_score": {
+      "type": "integer",
+      "required": true
+    },
+    "venue": {
+      "type": "string"
+    },
+    "competition": {
+      "type": "string"
+    },
+    "match_report_url": {
+      "type": "string"
+    },
+    "highlights_url": {
+      "type": "string"
+    },
+    "external_id": {
+      "type": "string"
+    },
+    "source": {
+      "type": "enumeration",
+      "enum": [
+        "manuel",
+        "api"
+      ]
+    }
+  }
+}

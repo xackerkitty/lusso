@@ -1,0 +1,50 @@
+{
+  "kind": "collectionType",
+  "collectionName": "fixtures",
+  "info": {
+    "singularName": "fixture",
+    "pluralName": "fixtures",
+    "displayName": "Fixture",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "homeTeam": {
+      "type": "string",
+      "required": true
+    },
+    "awayTeam": {
+      "type": "string",
+      "required": true
+    },
+    "date": {
+      "type": "datetime",
+      "required": true
+    },
+    "location": {
+      "type": "string"
+    },
+    "venue": {
+      "type": "string"
+    },
+    "competition": {
+      "type": "string"
+    },
+    "tv_broadcast": {
+      "type": "string"
+    },
+    "external_id": {
+      "type": "string"
+    },
+    "source": {
+      "type": "enumeration",
+      "enum": [
+        "manual",
+        "api"
+      ]
+    }
+  }
+}

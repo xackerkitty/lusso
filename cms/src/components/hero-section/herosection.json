@@ -1,0 +1,39 @@
+{
+  "collectionName": "components_hero_section_herosections",
+  "info": {
+    "displayName": "Herosection",
+    "icon": "briefcase"
+  },
+  "options": {},
+  "attributes": {
+    "lussoTitle": {
+      "type": "string"
+    },
+    "lussoDesc": {
+      "type": "string"
+    },
+    "ButtonTxt": {
+      "type": "string"
+    },
+    "landingVideo": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "landingFailedImage": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": true
+    }
+  }
+}
