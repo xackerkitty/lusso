@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_au_why_choose_us_au_why_chooseuses",
+  "info": {
+    "displayName": "AU_whyChooseUs"
+  },
+  "options": {},
+  "attributes": {
+    "AU_whyUsTitle": {
+      "type": "string"
+    },
+    "whyUsText": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "collectionType",
+  "collectionName": "luxury_cars",
+  "info": {
+    "singularName": "luxury-car",
+    "pluralName": "luxury-cars",
+    "displayName": "luxuryCar",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "aboutUsMain": {
+      "type": "component",
+      "repeatable": true,
+      "component": "about-us-main.about-us-main"
+    }
+  }
+}

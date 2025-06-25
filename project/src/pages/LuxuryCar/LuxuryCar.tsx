@@ -1,50 +1,67 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 import "./components/navbar.css";
-import "./components/style.css";
+import "./scr/css/style.css";
+
 import AOS from "aos";
 import "aos/dist/aos.css";
-
+import { motion } from "framer-motion";
 // --- Interface Definitions ---
-// Defines the expected structure of data fetched from the API.
-interface MediaData {
-  data?: {
-    attributes: {
-      url: string;
-      mime?: string;
-      name?: string;
-    };
-  };
+
+interface MediaAttributes {
+  url: string;
+  mime?: string;
+  name?: string;
+  alternativeText?: string;
+  caption?: string;
+  width?: number;
+  height?: number;
+  // Add other attributes you might receive like formats, hash, etc. if you use them
 }
 
+interface MediaDataItem {
+  id: number;
+  attributes: MediaAttributes;
+}
 
-// Featured Car section
+interface MediaData {
+  data: MediaDataItem | MediaDataItem[] | null;
+}
+
+// Define a specific interface for single media fields
+interface SingleMediaData {
+  data: MediaDataItem | null;
+}
+
 interface FeaturedCar {
   id: number;
   carTitle?: string;
   carDesc?: string;
   carPhoto?: {
-    data?: {
-      attributes: {
-        url: string;
-      };
-    };
+    data: MediaDataItem[] | null;
   };
+  backgroundColor?: string;
 }
 
+// Location
+interface locationSection {
+  sectionTitle?: string;
+  descLocation?: string;
+}
+
+interface ourCars {
+  ourCarsTitle?: string;
+  ourCarsDesc?: string;
+  ourCarsBtn?: string;
+}
 
 // About Us section
 interface aboutUsSection {
   aboutUsTitle?: string;
   aboutUsDesc?: string;
   buttonText?: string;
-  carImage?: {
-    data?: {
-      attributes: {
-        url: string;
-      };
-    };
-  };
+  carImage?: SingleMediaData;
   aboutUsBackground?: {
     data?: {
       attributes: {
@@ -52,21 +69,13 @@ interface aboutUsSection {
       };
     };
   };
-
 }
 
 interface LuxuryHeroAttributes {
   title?: string;
   subtitle?: string;
   cta?: string;
-  videoUrl?: {
-    data?: {
-      attributes: {
-        url: string;
-        mime: string;
-      };
-    };
-  };
+  videoUrl?: SingleMediaData;
   videoPoster?: {
     data?: {
       attributes: {
@@ -78,14 +87,7 @@ interface LuxuryHeroAttributes {
     lussoTitle?: string;
     lussoDesc?: string;
     buttonTxt?: string;
-    landingVideo?: {
-      data?: {
-        attributes: {
-          url: string;
-          mime: string;
-        };
-      };
-    };
+    landingVideo?: SingleMediaData;
     landingFailedImage?: {
       data?: {
         attributes: {
@@ -96,12 +98,14 @@ interface LuxuryHeroAttributes {
   };
   basicinfo?: {
     companyName?: string;
-    companyLogo?: MediaData;
+    companyLogo?: SingleMediaData;
   };
   featuredCar?: FeaturedCar[];
   aboutUsSection?: aboutUsSection;
-  aboutUsBackground?: MediaData;
-  porscheImage?: MediaData;
+  aboutUsBackground?: SingleMediaData;
+  porscheImage?: SingleMediaData;
+  locationSection?: locationSection;
+  ourCars?: ourCars;
 }
 
 // Fallback video source for robustness.
@@ -123,39 +127,73 @@ const LuxuryHeroFetcher = () => {
 
   // --- Utility Function: getMediaUrl ---
   // Converts relative API paths to full URLs for media assets.
-  const getMediaUrl = (relativePath: string | undefined): string => {
+  const getMediaUrl = (
+    mediaDataContent:
+      | MediaDataItem
+      | MediaDataItem[]
+      | string
+      | null
+      | undefined
+  ): string => {
+    let relativePath: string | undefined;
+
+    if (typeof mediaDataContent === "string") {
+      relativePath = mediaDataContent; // It's already a direct URL string
+    } else if (mediaDataContent && !Array.isArray(mediaDataContent)) {
+      // It's a single MediaDataItem (e.g., logo.data, poster.data)
+      relativePath = mediaDataContent.attributes?.url;
+    } else if (Array.isArray(mediaDataContent) && mediaDataContent.length > 0) {
+      // It's an array of MediaDataItem (e.g., carPhoto.data)
+      relativePath = mediaDataContent[0].attributes?.url;
+    } else {
+      console.warn(
+        "getMediaUrl: No valid mediaDataContent provided or it's empty."
+      );
+      return ""; // Return empty string or a placeholder if no path
+    }
+
     if (!relativePath) {
-      console.log("getMediaUrl: No relativePath provided.");
+      console.warn(
+        "getMediaUrl: extracted relativePath was empty or undefined."
+      );
       return "";
     }
+
+    // Ensure this base URL is correct for your Strapi instance
+    // It's highly recommended to use environment variables for this.
+    const STRAPI_BASE_URL = "http://localhost:1337";
+
     let fullUrl = "";
     if (
       relativePath.startsWith("http://") ||
       relativePath.startsWith("https://")
     ) {
-      fullUrl = relativePath;
+      fullUrl = relativePath; // Already a full URL
     } else {
-      fullUrl = `http://localhost:1337${relativePath}`; // Ensure this base URL is correct for your Strapi instance
+      // Handle cases where relativePath might start with a leading slash or not
+      fullUrl = `${STRAPI_BASE_URL}${
+        relativePath.startsWith("/") ? "" : "/"
+      }${relativePath}`;
     }
+
     console.log(
-      `DEBUG: getMediaUrl input: "<span class="math-inline">\{relativePath\}" \-\> output URL\: "</span>{fullUrl}"`
-    ); // <--- ADD THIS LINE
+      `DEBUG: getMediaUrl input: "${relativePath}" -> output URL: "${fullUrl}"`
+    );
     return fullUrl;
   };
 
   // --- useEffect Hook: Data Fetching and AOS Initialization ---
   // Handles data fetching and initializes the AOS library when the component mounts.
   useEffect(() => {
-    AOS.init({
-      duration: 1000,
-      once: true,
-    });
+    // AOS.init({
+    //   duration: 1000,
+    //   once: true,
+    // });
 
     const fetchData = async () => {
       try {
-        // Fetches hero data from Strapi, populating all related fields.
         const heroApiUrl =
-  "http://localhost:1337/api/luxury-heroes?populate[basicinfo][populate]=companyLogo&populate[heroSection][populate]=*&populate[videoPoster]=*&populate[videoUrl]=*&populate[aboutUsBackground]=*&populate[porscheImage]=*&populate[featuredCar][populate]=*&populate[aboutUsSection][populate]=*";
+          "http://localhost:1337/api/luxury-heroes?populate[basicinfo][populate]=companyLogo&populate[heroSection][populate]=*&populate[videoPoster]=*&populate[videoUrl]=*&populate[aboutUsBackground]=*&populate[porscheImage]=*&populate[featuredCar][populate]=*&populate[aboutUsSection][populate]=*&populate[locationSection][populate]=*&populate[ourCars][populate]=*";
 
         const heroResponse = await fetch(heroApiUrl);
         if (!heroResponse.ok) {
@@ -169,7 +207,6 @@ const LuxuryHeroFetcher = () => {
         if (heroJson?.data?.length > 0) {
           const attributes = heroJson.data[0].attributes;
           setHeroData(attributes);
-          // Log featuredCar specifically to verify its content and type
           console.log("Featured Cars Data:", attributes.featuredCar);
         } else {
           setHeroData(null);
@@ -185,24 +222,26 @@ const LuxuryHeroFetcher = () => {
 
     fetchData();
   }, []);
-
   // Derived URLs for Navbar and About Us section images.
-  const logoUrl = heroData?.basicinfo?.companyLogo?.data?.attributes?.url
-    ? getMediaUrl(heroData.basicinfo.companyLogo.data.attributes.url)
+  const logoUrl = heroData?.basicinfo?.companyLogo?.data
+    ? getMediaUrl(heroData.basicinfo.companyLogo.data)
     : "";
 
-  const lussoBgUrl = heroData?.aboutUsSection?.aboutUsBackground?.data?.attributes?.url
-    ? getMediaUrl(heroData?.aboutUsSection?.aboutUsBackground?.data?.attributes?.url)
+  const lussoBgUrl = heroData?.aboutUsSection?.aboutUsBackground?.data
+    ?.attributes?.url
+    ? getMediaUrl(
+        heroData?.aboutUsSection?.aboutUsBackground?.data?.attributes?.url
+      )
     : "";
 
-  const porscheUrl = heroData?.porscheImage?.data?.attributes?.url
-    ? getMediaUrl(heroData.porscheImage.data.attributes.url)
+  const porscheUrl = heroData?.porscheImage?.data
+    ? getMediaUrl(heroData.porscheImage.data)
     : "";
 
   // --- Event Handlers: Featured Car Navigation ---
   // Functions to navigate through the featured cars carousel.
+  // --- Event Handlers: Featured Car Navigation ---
   const handlePreviousCar = () => {
-    // Ensure featuredCarsArray is an array before accessing length
     const featuredCarsArray = heroData?.featuredCar;
     if (featuredCarsArray && featuredCarsArray.length > 0) {
       setCurrentCarIndex((prevIndex) =>
@@ -212,7 +251,6 @@ const LuxuryHeroFetcher = () => {
   };
 
   const handleNextCar = () => {
-    // Ensure featuredCarsArray is an array before accessing length
     const featuredCarsArray = heroData?.featuredCar;
     if (featuredCarsArray && featuredCarsArray.length > 0) {
       setCurrentCarIndex((prevIndex) =>
@@ -221,9 +259,8 @@ const LuxuryHeroFetcher = () => {
     }
   };
 
-  // Get the currently displayed featured car based on the index.
-  // Add a check to ensure heroData.featuredCar is an array and not empty
-  const currentCar = heroData?.featuredCar?.[currentCarIndex]; // Keep this line
+  const currentCar = heroData?.featuredCar?.[currentCarIndex];
+
   console.log("--- Rendering Check ---");
   console.log("heroData:", heroData);
   console.log("currentCarIndex:", currentCarIndex);
@@ -256,7 +293,16 @@ const LuxuryHeroFetcher = () => {
   // Defines the visual structure of the component.
   return (
     <div className="relative">
+      {/* //////////////////////////////////////////////////////////////////////////// */}
+      {/* { -------------------------|| Navbar begin || ---------------------------|| } */}
+
       <Navbar largeLogoSrc={logoUrl} smallLogoSrc={logoUrl} />
+
+      {/* ---------------------------|| Navbar End || ---------------------------||  */}
+      {/*////////////////////////////////////////////////////////////////////////////*/}
+
+    
+
       <div
         className="overflow-y-auto scroll-smooth"
         style={{
@@ -265,7 +311,9 @@ const LuxuryHeroFetcher = () => {
           WebkitOverflowScrolling: "touch",
         }}
       >
-        {/* --- Hero Section --- */}
+        {/* //////////////////////////////////////////////////////////////////////////// */}
+        {/* { -------------------------|| Hero/Landing begin || ---------------------------|| } */}
+
         {/* Displays the main introductory section with a background video or image. */}
         <section
           id="home"
@@ -434,227 +482,445 @@ const LuxuryHeroFetcher = () => {
           </div>
         </section>
 
-         {/* --- About us section --- */}
+        {/* ---------------------------|| Hero/Landing End || ---------------------------||  */}
+        {/*////////////////////////////////////////////////////////////////////////////*/}
+
+
+
+
+        {/* //////////////////////////////////////////////////////////////////////////// */}
+        {/* { -------------------------|| about us begin || ---------------------------|| } */}
         <section
           id="about"
           className="section-aboutus h-[calc(100vh-96px)] flex items-center justify-center bg-gray-600 text-white text-3xl"
           style={{ scrollSnapAlign: "start" }}
         >
-
-          
           {/* --- background image --- */}
-           <img
+          <img
             className="aboutUs_backgroundImg"
-            src={getMediaUrl(heroData?.aboutUsSection?.aboutUsBackground?.data?.attributes.url)}  
-
+            src={getMediaUrl(
+              heroData?.aboutUsSection?.aboutUsBackground?.data?.attributes.url
+            )}
           />
 
           {/* --- car image --- */}
           <img
             className="aboutUs_carPhoto"
-            src={getMediaUrl(heroData?.aboutUsSection?.carImage?.data?.attributes.url)}
+            src={getMediaUrl(
+              heroData?.aboutUsSection?.carImage?.data?.attributes.url
+            )}
           />
 
           <div className="textAboutUs">
-            <h1>
-            {heroData?.aboutUsSection?.aboutUsTitle}
-          </h1>
+            <h1 className="about_us_txt">
+              {heroData?.aboutUsSection?.aboutUsTitle}
+            </h1>
 
-          <p className="">{heroData?.aboutUsSection?.aboutUsDesc}</p>
-          <button className="aboutus-button">
-            <span>{heroData?.aboutUsSection?.buttonText}</span>
-          </button>
-          
+            <p className="">{heroData?.aboutUsSection?.aboutUsDesc}</p>
+            <button className="aboutus-button">
+              <span>{heroData?.aboutUsSection?.buttonText}</span>
+            </button>
           </div>
-
-
-
-
-          
-          
-         
-
-           
         </section>
 
-        {/* --- Featured Cars Section --- */}
+        {/* ---------------------------|| About us End || ---------------------------||  */}
+        {/*////////////////////////////////////////////////////////////////////////////*/}
+
+        
+
+        
+        {/* //////////////////////////////////////////////////////////////////////////// */}
+        {/* { -------------------------|| Featured cars begin || ---------------------------|| } */}
+    
         {/* Showcases a carousel of featured cars with navigation buttons. */}
         <section
           id="featured-cars"
-          className="section_cars_we_offer h-[calc(100vh-96px)] flex flex-col items-center justify-center  text-white p-6"
-          style={{ scrollSnapAlign: "start" }}
+          className="section_cars_we_offer h-[calc(100vh-96px)] "
+          style={{
+            scrollSnapAlign: "start",
+            backgroundColor: currentCar?.backgroundColor || "",
+          }}
         >
-          <h2 className="cwo_title text-4xl md:text-6xl font-bold mb-10 text-center drop-shadow-lg">
-            Our Featured Cars
-          </h2>
+          <h2 className="cwo_title">Our Featured Cars</h2>
           <div className="cwo-content">
-            <div className="cwo_text">
+            <div className="cwo-text">
               {currentCar ? (
                 <div className="text-center">
-                  <h1 className="gradient-text-title carTitle text-5xl md:text-7xl font-bold mb-4 drop-shadow-lg text-white">
+                  <h1 className="gradient-text-title carTitle">
                     {currentCar.carTitle}
                   </h1>
-                  <p className="gradient-text-desc text-lg md:text-xl mb-8 max-w-3xl mx-auto drop-shadow-md">
-                    {currentCar.carDesc}
-                  </p>
+                  <p className="gradient-text-desc ">{currentCar.carDesc}</p>
                 </div>
               ) : (
                 <p className="text-xl">No featured cars available.</p>
               )}
             </div>
 
+           
             <div className="cwo-buttons">
-              {currentCar ? (
-                <div className="text-center">
-                  {/* Only show navigation buttons if there's more than one car */}
-                  {heroData?.featuredCar && heroData.featuredCar.length > 1 && (
-                    <div className="flex justify-center space-x-6">
-                      <button
-                      
-                        className="button_elegant "
-                      >
-                        See more
-                      </button>
-                      <button
-                        
-                        className="button_elegant"
-                      >
-                        Contact
-                      </button>
-                    </div>
-                  )}
-                </div>
+              {" "}
+             
+              {currentCar &&
+              heroData?.featuredCar &&
+              heroData.featuredCar.length > 1 ? (
+                <>
+                  <button
+                    className="button_elegant button_v1 get-bigger" 
+                    
+                  >
+                    See more
+                  </button>
+                  <button
+                    className="button_elegant button_v2 get-bigger"
+                    
+                  >
+                    Contact
+                  </button>
+                </>
               ) : (
                 <p className="text-xl">No featured cars available.</p>
               )}
             </div>
           </div>
 
-          {/* CRITICAL CHANGE HERE: Ensure currentCar is valid before attempting to render details */}
-          {currentCar ? (
-            <div className="text-center">
-              {currentCar.carPhoto?.data?.attributes?.url && (
-                <img
-                  src={getMediaUrl(currentCar.carPhoto.data.attributes.url)}
-                  alt={currentCar.carTitle || "Featured Car"}
-                  className="mx-auto rounded-lg shadow-xl mb-8 max-h-80 object-cover"
-                />
+          {heroData?.featuredCar && heroData.featuredCar.length > 1 && (
+            <div className="cwo-car-image-container ">
+              {currentCar &&
+              currentCar.carPhoto?.data &&
+              currentCar.carPhoto.data.length > 0 &&
+              currentCar.carPhoto.data[0]?.attributes?.url ? (
+                <div className="text-center mt-8">
+                  <img
+                    src={getMediaUrl(
+                      currentCar.carPhoto.data[0].attributes.url
+                    )}
+                    alt={currentCar.carTitle || "Featured Car"}
+                    className="cwo-car-image"
+                  />
+                </div>
+              ) : (
+                currentCar && (
+                  <p className="text-xl mt-8">
+                    No image available for this car.
+                  </p>
+                )
               )}
-              {/* Only show navigation buttons if there's more than one car */}
+
+              <svg
+                className="cwo-svg"
+                width="859"
+                height="201"
+                viewBox="0 0 859 201"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {/* Next Button */}
+                <g
+                  id="moveToNextCar_button_group"
+                  onClick={handleNextCar}
+                  className="cursor-pointer"
+                  filter="url(#filter0_b_58_50)"
+                >
+                  <g clipPath="url(#clip0_58_50)">
+                    <rect
+                      x="572"
+                      y="151"
+                      width="42"
+                      height="43"
+                      rx="21"
+                      fill="white"
+                      fillOpacity="0.18"
+                    />
+                    <path
+                      d="M588.578 160.985L599.161 172.002L589.583 183.903"
+                      stroke="white"
+                      strokeWidth="1.65277"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </g>
+                  <rect
+                    x="572.5"
+                    y="151.5"
+                    width="41"
+                    height="42"
+                    rx="20.5"
+                    stroke="white"
+                  />
+                </g>
+
+                {/* Previous Button */}
+                <g
+                  id="moveToPrevCar_button_group"
+                  onClick={handlePreviousCar}
+                  className="cursor-pointer"
+                  filter="url(#filter1_b_58_50)"
+                >
+                  <g clipPath="url(#clip1_58_50)">
+                    <rect
+                      width="42.5543"
+                      height="41.3541"
+                      rx="20.677"
+                      transform="matrix(-0.999415 0.0341914 0.0291314 0.999576 548.53 158)"
+                      fill="white"
+                      fillOpacity="0.18"
+                    />
+                    <path
+                      d="M532.078 166.724L520.156 178.801L532.939 189.645"
+                      stroke="white"
+                      strokeWidth="1.65277"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </g>
+                  <rect
+                    x="-0.485142"
+                    y="0.516884"
+                    width="41.5543"
+                    height="40.3541"
+                    rx="20.177"
+                    transform="matrix(-0.999415 0.0341914 0.0291314 0.999576 547.544 158.017)"
+                    stroke="white"
+                  />
+                </g>
+
+                {/* Overlaying SVG Path */}
+                <path
+                  id="overlaying_svg"
+                  d="M416.12 2C74.9536 18.6624 -324.798 232.444 439.956 184.657C1186.73 137.994 772.508 1.99983 416.12 2Z"
+                  stroke="url(#paint0_linear_58_50)"
+                  strokeOpacity="0.7"
+                  strokeWidth="3"
+                />
+                <defs>
+                  <filter
+                    id="filter0_b_58_50"
+                    x="479.5"
+                    y="58.5"
+                    width="227"
+                    height="228"
+                    filterUnits="userSpaceOnUse"
+                    colorInterpolationFilters="sRGB"
+                  >
+                    <feFlood floodOpacity="0" result="BackgroundImageFix" />
+                    <feGaussianBlur
+                      in="BackgroundImageFix"
+                      stdDeviation="46.25"
+                    />
+                    <feComposite
+                      in2="SourceAlpha"
+                      operator="in"
+                      result="effect1_backgroundBlur_58_50"
+                    />
+                    <feBlend
+                      mode="normal"
+                      in="SourceGraphic"
+                      in2="effect1_backgroundBlur_58_50"
+                      result="shape"
+                    />
+                  </filter>
+                  <filter
+                    id="filter1_b_58_50"
+                    x="413.5"
+                    y="65.5"
+                    width="228.734"
+                    height="227.792"
+                    filterUnits="userSpaceOnUse"
+                    colorInterpolationFilters="sRGB"
+                  >
+                    <feFlood floodOpacity="0" result="BackgroundImageFix" />
+                    <feGaussianBlur
+                      in="BackgroundImageFix"
+                      stdDeviation="46.25"
+                    />
+                    <feComposite
+                      in2="SourceAlpha"
+                      operator="in"
+                      result="effect1_backgroundBlur_58_50"
+                    />
+                    <feBlend
+                      mode="normal"
+                      in="SourceGraphic"
+                      in2="effect1_backgroundBlur_58_50"
+                      result="shape"
+                    />
+                  </filter>
+                  <linearGradient
+                    id="paint0_linear_58_50"
+                    x1="476.674"
+                    y1="182.568"
+                    x2="469.013"
+                    y2="49.8858"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop stopColor="white" />
+                    <stop offset="0.775" stopColor="white" stopOpacity="0" />
+                  </linearGradient>
+                  <clipPath id="clip0_58_50">
+                    <rect
+                      x="572"
+                      y="151"
+                      width="42"
+                      height="43"
+                      rx="21"
+                      fill="white"
+                    />
+                  </clipPath>
+                  <clipPath id="clip1_58_50">
+                    <rect
+                      width="42.5543"
+                      height="41.3541"
+                      rx="20.677"
+                      transform="matrix(-0.999415 0.0341914 0.0291314 0.999576 548.53 158)"
+                      fill="white"
+                    />
+                  </clipPath>
+                </defs>
+              </svg>
             </div>
-          ) : (
-            <p className="text-xl">No featured cars available.</p>
           )}
-
-            {heroData?.featuredCar && heroData.featuredCar.length > 1 && (
-          <div className="cwo-car-image-container relative">
-            <svg className="cwo-svg" width="859" height="201" viewBox="0 0 859 201" fill="none" xmlns="http://www.w3.org/2000/svg">
-              {/* Next Button */}
-              <g
-                id="moveToNextCar_button_group"
-                onClick={handleNextCar}
-                className="cursor-pointer"
-                filter="url(#filter0_b_58_50)"
-              >
-                <g clipPath="url(#clip0_58_50)">
-                  <rect x="572" y="151" width="42" height="43" rx="21" fill="white" fillOpacity="0.18" />
-                  <path d="M588.578 160.985L599.161 172.002L589.583 183.903" stroke="white" strokeWidth="1.65277" strokeLinecap="round" strokeLinejoin="round" />
-                </g>
-                <rect x="572.5" y="151.5" width="41" height="42" rx="20.5" stroke="white" />
-              </g>
-
-              {/* Previous Button */}
-              <g
-                id="moveToPrevCar_button_group"
-                onClick={handlePreviousCar}
-                className="cursor-pointer"
-                filter="url(#filter1_b_58_50)"
-              >
-                <g clipPath="url(#clip1_58_50)">
-                  <rect width="42.5543" height="41.3541" rx="20.677" transform="matrix(-0.999415 0.0341914 0.0291314 0.999576 548.53 158)" fill="white" fillOpacity="0.18" />
-                  <path d="M532.078 166.724L520.156 178.801L532.939 189.645" stroke="white" strokeWidth="1.65277" strokeLinecap="round" strokeLinejoin="round" />
-                </g>
-                <rect x="-0.485142" y="0.516884" width="41.5543" height="40.3541" rx="20.177" transform="matrix(-0.999415 0.0341914 0.0291314 0.999576 547.544 158.017)" stroke="white" />
-              </g>
-
-              {/* Overlaying SVG Path */}
-              <path id="overlaying_svg" d="M416.12 2C74.9536 18.6624 -324.798 232.444 439.956 184.657C1186.73 137.994 772.508 1.99983 416.12 2Z" stroke="url(#paint0_linear_58_50)" strokeOpacity="0.7" strokeWidth="3" />
-              <defs>
-                <filter id="filter0_b_58_50" x="479.5" y="58.5" width="227" height="228" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
-                  <feFlood floodOpacity="0" result="BackgroundImageFix" />
-                  <feGaussianBlur in="BackgroundImageFix" stdDeviation="46.25" />
-                  <feComposite in2="SourceAlpha" operator="in" result="effect1_backgroundBlur_58_50" />
-                  <feBlend mode="normal" in="SourceGraphic" in2="effect1_backgroundBlur_58_50" result="shape" />
-                </filter>
-                <filter id="filter1_b_58_50" x="413.5" y="65.5" width="228.734" height="227.792" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
-                  <feFlood floodOpacity="0" result="BackgroundImageFix" />
-                  <feGaussianBlur in="BackgroundImageFix" stdDeviation="46.25" />
-                  <feComposite in2="SourceAlpha" operator="in" result="effect1_backgroundBlur_58_50" />
-                  <feBlend mode="normal" in="SourceGraphic" in2="effect1_backgroundBlur_58_50" result="shape" />
-                </filter>
-                <linearGradient id="paint0_linear_58_50" x1="476.674" y1="182.568" x2="469.013" y2="49.8858" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="white" />
-                  <stop offset="0.775" stopColor="white" stopOpacity="0" />
-                </linearGradient>
-                <clipPath id="clip0_58_50">
-                  <rect x="572" y="151" width="42" height="43" rx="21" fill="white" />
-                </clipPath>
-                <clipPath id="clip1_58_50">
-                  <rect width="42.5543" height="41.3541" rx="20.677" transform="matrix(-0.999415 0.0341914 0.0291314 0.999576 548.53 158)" fill="white" />
-                </clipPath>
-              </defs>
-            </svg>
-          </div>
-        )}
         </section>
+        {/* ---------------------------|| Featured Cars End || ---------------------------||  */}
+        {/*////////////////////////////////////////////////////////////////////////////*/}
 
-  
+      
 
 
 
+
+        {/* //////////////////////////////////////////////////////////////////////////// */}
+        {/* { -------------------------|| Our cars begin || ---------------------------|| } */}
 
         <section
-          id="showroom"
+          id="our_cars"
           className="h-[calc(100vh-96px)] flex items-center justify-center bg-gray-700 text-white text-3xl"
           style={{ scrollSnapAlign: "start" }}
         >
-          <div className="text-center">
-            {heroData?.basicinfo?.companyName && (
-              <h2 className="text-5xl font-bold mb-4">
-                Company Name:{" "}
-                <span className="text-primary">
-                  {heroData.basicinfo.companyName}
-                </span>
-              </h2>
-            )}
-            {heroData?.basicinfo?.companyLogo?.data?.attributes?.name && (
-              <p className="text-xl">
-                Logo File Name:{" "}
-                <span className="font-semibold">
-                  {heroData.basicinfo.companyLogo.data.attributes.name}
-                </span>
-              </p>
-            )}
-            {heroData?.basicinfo?.companyLogo?.data?.attributes?.url && (
-              <img
-                src={getMediaUrl(
-                  heroData.basicinfo.companyLogo.data.attributes.url
-                )}
-                alt="Company Logo"
-                className="mt-8 mx-auto h-20"
-              />
-            )}
-            <h2>display info</h2>
+          <div className="relative w-full  h-[calc(100vh)] bg-white rounded-3xl overflow-hidden shadow-xl card-inner-shadow main-card-effect cursor-pointer flex items-center justify-center">
+            {/* Blurry Background Layer */}
+            <div className="absolute inset-0 blurry-background"></div>
+
+            {/* Content Overlay */}
+            <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center p-6 rounded-3xl">
+              <div className="text-center w-full">
+                <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 tracking-wide">
+                  {heroData?.ourCars?.ourCarsTitle}
+                </h1>
+                <p className="text-white text-lg sm:text-xl mb-8 max-w-2xl mx-auto">
+                 {heroData?.ourCars?.ourCarsDesc}
+                </p>
+                {/* Car Brand Logos moved into the main content section */}
+                <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 md:gap-8 mb-12 px-2">
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/en/thumb/d/df/Lamborghini_Logo.svg/1200px-Lamborghini_Logo.svg.png"
+                    alt="Lamborghini Logo"
+                    className="h-20 w-20 object-contain logo-item cursor-pointer"
+                  />
+                  <img
+                    src="https://i.redd.it/when-you-realize-it-is-actually-a-ferrari-which-is-actually-v0-xck74yvryfua1.png?width=1200&format=png&auto=webp&s=dfd369f5bf850b7ffecb348eb19d78e70a6b910f"
+                    alt="Ferrari Logo"
+                    className="h-20 w-20 object-contain logo-item cursor-pointer"
+                  />
+                  <img
+                    src="https://images.seeklogo.com/logo-png/16/2/porsche-logo-png_seeklogo-168544.png"
+                    alt="Porsche Logo"
+                    className="h-20 w-20 object-contain logo-item cursor-pointer"
+                  />
+                  <img
+                    src="https://cdn.freebiesupply.com/logos/large/2x/mercedes-benz-9-logo-svg-vector.svg"
+                    alt="Mercedes-Benz Logo"
+                    className="h-20 w-20 object-contain logo-item cursor-pointer"
+                  />
+                  <img
+                    src="https://pngimg.com/uploads/bmw_logo/bmw_logo_PNG19707.png"
+                    alt="BMW Logo"
+                    className="h-20 w-20 object-contain logo-item cursor-pointer"
+                  />
+                  <img
+                    src="https://images.seeklogo.com/logo-png/1/2/audi-logo-png_seeklogo-13450.png"
+                    alt="Audi Logo"
+                    className="h-20 w-20 object-contain logo-item cursor-pointer"
+                  />
+                </div>
+                <button className="bg-white text-gray-800 px-8 py-3 rounded-full text-lg font-semibold hover:text-gray-900 explore-button shadow-lg">
+                   {heroData?.ourCars?.ourCarsBtn}
+                </button>
+              </div>
+            </div>
           </div>
         </section>
 
+         {/* ---------------------------|| Our Cars End || ---------------------------||  */}
+        {/*////////////////////////////////////////////////////////////////////////////*/}
+
+
+
+
+
+
+
+
+         {/* //////////////////////////////////////////////////////////////////////////// */}
+        {/* { -------------------------|| location begin || ---------------------------|| } */}
         <section
-          id="contact"
-          className="h-[calc(100vh-96px)] flex items-center justify-center bg-gray-600 text-white text-3xl"
+          id="location"
+          className="location_section h-[calc(100vh-96px)] flex flex-col items-center justify-center text-black text-3xl p-4"
           style={{ scrollSnapAlign: "start" }}
         >
-          Contact Section (Coming Soon)
+          <div className="text-center mb-8">
+            <h2 className="text-5xl font-bold mb-4 text-blacm">
+               {heroData?.locationSection?.sectionTitle}
+            </h2>
+            {/* Updated address details */}
+            <p className="text-xl text-black">
+               {heroData?.locationSection?.descLocation}
+            </p>
+          </div>
+          {/* Map container with car image positioned at bottom right */}
+          <div className="relative w-full max-w-4xl h-96 bg-gray-950 rounded-xl shadow-2xl overflow-hidden border-4 border-gray-700">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d11979.791557022204!2d44.75084918731362!3d41.76100127815343!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4044735c0269389f%3A0xc6e43f551c6c04f9!2s274%20David%20Agmashenebeli%20Alley%2C%20Tbilisi!5e0!3m2!1sen!2sge!4v1718274797017!5m2!1sen!2sge"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Our Location on Google Maps"
+              className="rounded-xl"
+            ></iframe>
+            {/* Car image positioned to pop out further from the bottom right corner */}
+          </div>
+          {heroData?.aboutUsSection?.carImage?.data?.attributes?.url && (
+            <img
+              className="absolute car-test" // Increased negative values for bottom/right, and increased width
+              src={getMediaUrl(
+                heroData.aboutUsSection.carImage.data.attributes.url
+              )}
+              alt="Car"
+            />
+          )}
         </section>
+        {/* ---------------------------|| location End || ---------------------------||  */}
+        {/*////////////////////////////////////////////////////////////////////////////*/}
+
+
+        {/* //////////////////////////////////////////////////////////////////////////// */}
+        {/* { -------------------------|| Footer begin || ---------------------------|| } */} 
+        <section
+          className="h-screen flex flex-col bg-white"
+          style={{ scrollSnapAlign: "start" }}
+        >
+          {/* This div acts as the main content area of the 100vh section, taking up all available space above the footer */}
+          <div className="flex-grow flex items-center justify-center text-gray-700">
+            {/* Placeholder for your main content in this section */}
+          </div>
+
+          <Footer logoUrl={logoUrl} />
+        </section>
+         {/* ---------------------------|| Footer End || ---------------------------||  */}
+        {/*////////////////////////////////////////////////////////////////////////////*/}
+
+        
       </div>
     </div>
   );

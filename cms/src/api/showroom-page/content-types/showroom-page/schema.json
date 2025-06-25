@@ -1,0 +1,26 @@
+{
+  "kind": "singleType",
+  "collectionName": "showroom_pages",
+  "info": {
+    "singularName": "showroom-page",
+    "pluralName": "showroom-pages",
+    "displayName": "showroomPage"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "mainTitle": {
+      "type": "string"
+    },
+    "mainDesc": {
+      "type": "text"
+    },
+    "SR_mainCards": {
+      "displayName": "SR_mainCards",
+      "type": "component",
+      "repeatable": true,
+      "component": "sr-main-cards.sr-main-cards"
+    }
+  }
+}

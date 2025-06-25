@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_slider_car_imgs_slider_car_imgs",
+  "info": {
+    "displayName": "slider_car_imgs"
+  },
+  "options": {},
+  "attributes": {
+    "slider_img": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": false
+    }
+  }
+}

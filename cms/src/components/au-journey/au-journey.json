@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_au_journey_au_journeys",
+  "info": {
+    "displayName": "AU_Journey",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Au_JourneyTitleTxt": {
+      "type": "string"
+    },
+    "AU_JourneyDesc": {
+      "type": "string"
+    },
+    "AU_journeyBG": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "journeyDesc2nd": {
+      "type": "text"
+    }
+  }
+}

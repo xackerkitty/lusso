@@ -1,0 +1,36 @@
+{
+  "collectionName": "components_car_specifications_car_specifications",
+  "info": {
+    "displayName": "carSpecifications"
+  },
+  "options": {},
+  "attributes": {
+    "year": {
+      "type": "string"
+    },
+    "regYear": {
+      "type": "string"
+    },
+    "owners": {
+      "type": "string"
+    },
+    "mileage": {
+      "type": "string"
+    },
+    "exteriorColor": {
+      "type": "string"
+    },
+    "interiorColor": {
+      "type": "string"
+    },
+    "gear": {
+      "type": "string"
+    },
+    "power": {
+      "type": "string"
+    },
+    "fuelType": {
+      "type": "string"
+    }
+  }
+}

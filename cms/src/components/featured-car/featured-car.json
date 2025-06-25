@@ -2,7 +2,8 @@
   "collectionName": "components_featured_car_featured_cars",
   "info": {
     "displayName": "featuredCar",
-    "icon": "crown"
+    "icon": "crown",
+    "description": ""
   },
   "options": {},
   "attributes": {
@@ -13,14 +14,20 @@
       "type": "string"
     },
     "carPhoto": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
       "allowedTypes": [
         "images",
         "files",
         "videos",
         "audios"
-      ],
-      "type": "media",
-      "multiple": true
+      ]
+    },
+    "backgroundColor": {
+      "type": "customField",
+      "regex": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$",
+      "customField": "plugin::color-picker.color"
     }
   }
 }

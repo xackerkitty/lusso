@@ -1,0 +1,51 @@
+{
+  "kind": "singleType",
+  "collectionName": "au_main_sections",
+  "info": {
+    "singularName": "au-main-section",
+    "pluralName": "au-main-sections",
+    "displayName": "AU_mainSection",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "LC_mainSection": {
+      "type": "component",
+      "repeatable": false,
+      "component": "about-us-main.about-us-main"
+    },
+    "LC_AU_JourneySection": {
+      "type": "component",
+      "repeatable": false,
+      "component": "au-journey.au-journey"
+    },
+    "LC_AU_Values": {
+      "type": "component",
+      "repeatable": true,
+      "component": "au-values.au-values"
+    },
+    "LC_AU_WhyChooseUs": {
+      "type": "component",
+      "repeatable": true,
+      "component": "au-why-choose-us.au-why-choose-us"
+    },
+    "Call_to_action": {
+      "displayName": "LC_AU_CallToAction",
+      "type": "component",
+      "repeatable": false,
+      "component": "lc-au-call-to-action.lc-au-call-to-action"
+    },
+    "WCU_IMG": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": false
+    }
+  }
+}

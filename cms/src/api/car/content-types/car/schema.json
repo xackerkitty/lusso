@@ -1,0 +1,142 @@
+{
+  "kind": "collectionType",
+  "collectionName": "cars",
+  "info": {
+    "singularName": "car",
+    "pluralName": "cars",
+    "displayName": "car",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "carName": {
+      "type": "string"
+    },
+    "carBrand": {
+      "type": "string"
+    },
+    "carPrice": {
+      "type": "string"
+    },
+    "display": {
+      "type": "boolean"
+    },
+    "carSold": {
+      "type": "boolean"
+    },
+    "carDesc": {
+      "type": "text"
+    },
+    "slider_car_imgs": {
+      "displayName": "slider_car_imgs",
+      "type": "component",
+      "repeatable": true,
+      "component": "slider-car-imgs.slider-car-imgs"
+    },
+    "carSliderImg": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "mainImg": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "carEngineDesc": {
+      "type": "text"
+    },
+    "Car_fuel_economy_range": {
+      "type": "text"
+    },
+    "carSuspension": {
+      "type": "text"
+    },
+    "carSpecifications": {
+      "displayName": "carSpecifications",
+      "type": "component",
+      "repeatable": false,
+      "component": "car-specifications.car-specifications"
+    },
+    "checkingIMGs": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "Brand": {
+      "type": "enumeration",
+      "enum": [
+        "Audi",
+        "BMW",
+        "Ferrari",
+        "Lamborghini",
+        "Mercedes-Benz",
+        "Porsche",
+        "Rolls-Royce"
+      ]
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "carName"
+    },
+    "carPic": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "backgroundVid": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "brandLogo": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "carOverviewP1": {
+      "type": "text"
+    },
+    "carOverviewP2": {
+      "type": "text"
+    }
+  }
+}

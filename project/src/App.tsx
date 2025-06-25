@@ -8,6 +8,18 @@ import Construction from './pages/Construction';
 import SmartDevelopment from './pages/SmartDevelopment';
 import LussoInvest from './pages/LussoInvest';
 import LuxuryCar from './pages/LuxuryCar/LuxuryCar';
+//
+import Showroom from './pages/LuxuryCar/pages/Shoowroom'; 
+// Import CarDetail component
+import CarDetail from './pages/LuxuryCar/pages/CarDetail'; // <--- ADD THIS IMPORT
+
+import Aboutus from './pages/LuxuryCar/pages/aboutUs';
+
+import Contactus from './pages/LuxuryCar/pages/contactUs';
+
+import Cars from './pages/LuxuryCar/pages/cars';
+
+
 import WfcNikeLussoLayout from './pages/wfcnikelusso/WfcNikeLussoLayout';
 import WfcNikeLusso from './pages/wfcnikelusso/WfcNikeLusso';
 import TeamPage from './pages/wfcnikelusso/TeamPage';
@@ -271,7 +283,18 @@ function App() {
       <Route path="/luxurycar/*" element={<UserRoute path="/luxurycar" element={<LuxuryCar />} />} />
       <Route path="/luxurycars" element={<UserRoute path="/luxurycar" element={<LuxuryCar />} />} />
       <Route path="/luxurycars/*" element={<UserRoute path="/luxurycar" element={<LuxuryCar />} />} />
-    </Routes>
+      {/* Add the new showroom route here */}
+      <Route path="/luxurycars/showroom" element={<UserRoute path="/luxurycars/showroom" element={<Showroom />} />} />
+      <Route path="/luxurycars/aboutus" element={<UserRoute path="/luxurycars/about_us" element={<Aboutus />} />} />
+
+      <Route path="/luxurycars/contactus" element={<UserRoute path="/luxurycars/contact_us" element={<Contactus />} />} />
+      <Route path="/luxurycars/contact_us" element={<UserRoute path="/luxurycars/contact_us" element={<Contactus />} />} />
+
+      <Route path="/luxurycars/cars" element={<UserRoute path="/luxurycars/cars" element={<Cars />} />} />
+      {/* ADDED ROUTE FOR CAR DETAIL PAGE */}
+       <Route path="/luxurycars/cardetails/:slug" element={<CarDetail />} />
+        </Routes>
+
   );
 }
 

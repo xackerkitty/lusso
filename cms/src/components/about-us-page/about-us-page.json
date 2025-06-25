@@ -1,0 +1,34 @@
+{
+  "collectionName": "components_about_us_page_about_us_pages",
+  "info": {
+    "displayName": "aboutUsPage",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "aboutUsMain": {
+      "displayName": "aboutUsMain",
+      "type": "component",
+      "repeatable": false,
+      "component": "about-us-main.about-us-main"
+    },
+    "AU_Journey": {
+      "displayName": "AU_Journey",
+      "type": "component",
+      "repeatable": false,
+      "component": "au-journey.au-journey"
+    },
+    "AU_values": {
+      "displayName": "AU_values",
+      "type": "component",
+      "repeatable": true,
+      "component": "au-values.au-values"
+    },
+    "AU_whyChooseUs": {
+      "displayName": "AU_whyChooseUs",
+      "type": "component",
+      "repeatable": false,
+      "component": "au-why-choose-us.au-why-choose-us"
+    }
+  }
+}

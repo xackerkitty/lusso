@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_au_values_au_values",
+  "info": {
+    "displayName": "AU_values"
+  },
+  "options": {},
+  "attributes": {
+    "AU_valueTxt": {
+      "type": "string"
+    },
+    "AU_valueDesc": {
+      "type": "string"
+    },
+    "AU_valueImg": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": true
+    }
+  }
+}

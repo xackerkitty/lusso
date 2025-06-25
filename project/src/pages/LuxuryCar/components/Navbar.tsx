@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom'; // Import Link
 
 interface NavbarProps {
   largeLogoSrc?: string;
@@ -7,9 +8,17 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ largeLogoSrc, smallLogoSrc }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState('en'); // 'en' for English
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedLanguage(event.target.value);
+    // In a real application, you'd likely dispatch an action here
+    // to change the application's language globally.
+    console.log(`Language changed to: ${event.target.value}`);
   };
 
   return (
@@ -25,114 +34,118 @@ const Navbar: React.FC<NavbarProps> = ({ largeLogoSrc, smallLogoSrc }) => {
       <div className="flex flex-wrap items-center justify-between gap-x-10 max-w-screen-xl mx-auto w-full h-full py-4">
         {/* --- DESKTOP LEFT NAVIGATION --- */}
         <div className="max-lg:hidden flex items-center">
-          <ul className="flex gap-x-6" style={{marginTop: '0.5rem',}}>
+          <ul className="flex gap-x-6" style={{ marginTop: '0.5rem' }}>
             <li className="px-3">
-                <a
-                    href='#'
-                    className="relative text-gray-100 block font-medium text-lg group
-                               transition-all duration-300 ease-out /* ADDED HERE for smooth text size change */
-                               hover:text-gray-200 group-hover:text-xl" /* Now text-xl on hover will animate */
-                >
-                    Home
-                    <span
-                        className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
-                                   transform scale-x-0 group-hover:scale-x-100
-                                   transition-transform duration-300 ease-out"
-                    ></span>
-                </a>
+              <Link
+                to='/luxurycars'
+                className="relative text-gray-100 block font-medium text-lg group
+                               transition-all duration-300 ease-out
+                               hover:text-gray-200 group-hover:text-xl"
+              >
+                Home
+                <span
+                  className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
+                                 transform scale-x-0 group-hover:scale-x-100
+                                 transition-transform duration-300 ease-out"
+                ></span>
+              </Link>
             </li>
             <li className="px-3">
-                <a
-                    href='#'
-                    className="relative text-gray-100 block font-medium text-lg group
-                               transition-all duration-300 ease-out /* ADDED HERE */
+              <Link
+                to='/luxurycars/showroom'
+                className="relative text-gray-100 block font-medium text-lg group
+                               transition-all duration-300 ease-out
                                hover:text-gray-200 group-hover:text-xl"
-                >
-                    Showroom
-                    <span
-                        className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
-                                   transform scale-x-0 group-hover:scale-x-100
-                                   transition-transform duration-300 ease-out"
-                    ></span>
-                </a>
+              >
+                Showroom
+                <span
+                  className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
+                                 transform scale-x-0 group-hover:scale-x-100
+                                 transition-transform duration-300 ease-out"
+                ></span>
+              </Link>
             </li>
             <li className="px-3">
-                <a
-                    href='#'
-                    className="relative text-gray-100 block font-medium text-lg group
-                               transition-all duration-300 ease-out /* ADDED HERE */
+              <Link
+                to='/luxurycars/cars'
+                className="relative text-gray-100 block font-medium text-lg group
+                               transition-all duration-300 ease-out
                                hover:text-gray-200 group-hover:text-xl"
-                >
-                    Cars
-                    <span
-                        className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
-                                   transform scale-x-0 group-hover:scale-x-100
-                                   transition-transform duration-300 ease-out"
-                    ></span>
-                </a>
+              >
+                Cars
+                <span
+                  className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
+                                 transform scale-x-0 group-hover:scale-x-100
+                                 transition-transform duration-300 ease-out"
+                ></span>
+              </Link>
             </li>
           </ul>
         </div>
 
         {/* --- LARGE SCREEN LOGO --- */}
-        <a href="#" className="max-lg:hidden flex-shrink-0" style={{marginTop: '0.5rem',}}>
+        <Link to="#" className="max-lg:hidden flex-shrink-0" style={{ marginTop: '0.5rem' }}>
           {largeLogoSrc && <img src={largeLogoSrc} alt="logo" className="w-56 drop-shadow-lg" />}
-        </a>
-        
+        </Link>
+
         {/* --- SMALL SCREEN LOGO --- */}
-        <a href="#" className="hidden max-lg:block">
+        <Link to="#" className="hidden max-lg:block">
           {smallLogoSrc && <img src={smallLogoSrc} alt="logo" className="w-12" />}
-        </a>
+        </Link>
 
         {/* --- DESKTOP RIGHT NAVIGATION --- */}
-        <div className="max-lg:hidden flex items-center">
-          <ul className="flex gap-x-6" style={{marginTop: '0.5rem',}}>
+        <div className="max-lg:hidden flex items-center gap-x-6">
+          <ul className="flex gap-x-6" style={{ marginTop: '0.5rem' }}>
             <li className="px-3">
-                <a
-                    href='#'
-                    className="relative text-gray-100 block font-medium text-lg group
-                               transition-all duration-300 ease-out /* ADDED HERE */
+              <Link
+                to='/luxurycars/aboutus'
+                className="relative text-gray-100 block font-medium text-lg group
+                               transition-all duration-300 ease-out
                                hover:text-gray-200 group-hover:text-xl"
-                >
-                    About Us
-                    <span
-                        className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
-                                   transform scale-x-0 group-hover:scale-x-100
-                                   transition-transform duration-300 ease-out"
-                    ></span>
-                </a>
+              >
+                About Us
+                <span
+                  className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
+                                 transform scale-x-0 group-hover:scale-x-100
+                                 transition-transform duration-300 ease-out"
+                ></span>
+              </Link>
             </li>
             <li className="px-3">
-                <a
-                    href='#'
-                    className="relative text-gray-100 block font-medium text-lg group
-                               transition-all duration-300 ease-out /* ADDED HERE */
+              <Link
+                to='/luxurycars/contactus'
+                className="relative text-gray-100 block font-medium text-lg group
+                               transition-all duration-300 ease-out
                                hover:text-gray-200 group-hover:text-xl"
-                >
-                    Services
-                    <span
-                        className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
-                                   transform scale-x-0 group-hover:scale-x-100
-                                   transition-transform duration-300 ease-out"
-                    ></span>
-                </a>
-            </li>
-            <li className="px-3">
-                <a
-                    href='#'
-                    className="relative text-gray-100 block font-medium text-lg group
-                               transition-all duration-300 ease-out /* ADDED HERE */
-                               hover:text-gray-200 group-hover:text-xl"
-                >
-                    Contact
-                    <span
-                        className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
-                                   transform scale-x-0 group-hover:scale-x-100
-                                   transition-transform duration-300 ease-out"
-                    ></span>
-                </a>
+              >
+                Contact
+                <span
+                  className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
+                                 transform scale-x-0 group-hover:scale-x-100
+                                 transition-transform duration-300 ease-out"
+                ></span>
+              </Link>
             </li>
           </ul>
+          {/* Language Selector for Desktop */}
+          <div className="relative" style={{ marginTop: '0.5rem' }}>
+            <select
+              id="language-select-desktop"
+              value={selectedLanguage}
+              onChange={handleLanguageChange}
+              // REVISED TAILWIND CLASSES FOR SUBTLER LOOK
+              className="block appearance-none bg-transparent border border-gray-600 px-3 py-1.5 pr-6 rounded-md text-gray-100 text-base focus:outline-none focus:ring-1 focus:ring-gray-400 cursor-pointer"
+            >
+              <option value="en" className="bg-[#21332B]">English</option>
+              {/* Add other language options here when needed, ensure they have a dark background for contrast */}
+            </select>
+            {/* Custom arrow for the select dropdown */}
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-gray-400">
+              <svg className="fill-current h-3 w-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 6.757 7.586 5.343 9l4.95 4.95z"/>
+              </svg>
+            </div>
+          </div>
         </div>
 
         {/* --- MOBILE HAMBURGER BUTTON --- */}
@@ -168,100 +181,110 @@ const Navbar: React.FC<NavbarProps> = ({ largeLogoSrc, smallLogoSrc }) => {
               </button>
 
               <li className="mb-8 hidden max-lg:block">
-                <a href="#">
+                <Link to="#">
                   {largeLogoSrc && <img src={largeLogoSrc} alt="logo" className="w-44 drop-shadow-lg" />}
-                </a>
+                </Link>
               </li>
               {/* Applied the same hover effects to mobile menu items */}
               <li className="border-b border-gray-300 py-4 px-3">
-                <a
-                    href='#'
-                    className="relative text-gray-100 block font-medium text-lg group
-                               transition-all duration-300 ease-out /* ADDED HERE */
+                <Link
+                  to='/luxurycars'
+                  className="relative text-gray-100 block font-medium text-lg group
+                               transition-all duration-300 ease-out
                                hover:text-gray-200 group-hover:text-xl"
+                  onClick={toggleMenu}
                 >
-                    Home
-                    <span
-                        className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
+                  Home
+                  <span
+                    className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
                                    transform scale-x-0 group-hover:scale-x-100
                                    transition-transform duration-300 ease-out"
-                    ></span>
-                </a>
+                  ></span>
+                </Link>
               </li>
               <li className="border-b border-gray-300 py-4 px-3">
-                <a
-                    href='#'
-                    className="relative text-gray-100 block font-medium text-lg group
-                               transition-all duration-300 ease-out /* ADDED HERE */
+                <Link
+                  to='/luxurycars/showroom'
+                  className="relative text-gray-100 block font-medium text-lg group
+                               transition-all duration-300 ease-out
                                hover:text-gray-200 group-hover:text-xl"
+                  onClick={toggleMenu}
                 >
-                    Showroom
-                    <span
-                        className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
+                  Showroom
+                  <span
+                    className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
                                    transform scale-x-0 group-hover:scale-x-100
                                    transition-transform duration-300 ease-out"
-                    ></span>
-                </a>
+                  ></span>
+                </Link>
               </li>
               <li className="border-b border-gray-300 py-4 px-3">
-                <a
-                    href='#'
-                    className="relative text-gray-100 block font-medium text-lg group
-                               transition-all duration-300 ease-out /* ADDED HERE */
+                <Link
+                  to='/luxurycars/cars'
+                  className="relative text-gray-100 block font-medium text-lg group
+                               transition-all duration-300 ease-out
                                hover:text-gray-200 group-hover:text-xl"
+                  onClick={toggleMenu}
                 >
-                    Cars
-                    <span
-                        className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
+                  Cars
+                  <span
+                    className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
                                    transform scale-x-0 group-hover:scale-x-100
                                    transition-transform duration-300 ease-out"
-                    ></span>
-                </a>
+                  ></span>
+                </Link>
               </li>
               <li className="border-b border-gray-300 py-4 px-3">
-                <a
-                    href='#'
-                    className="relative text-gray-100 block font-medium text-lg group
-                               transition-all duration-300 ease-out /* ADDED HERE */
+                <Link
+                  to='/luxurycars/aboutus'
+                  className="relative text-gray-100 block font-medium text-lg group
+                               transition-all duration-300 ease-out
                                hover:text-gray-200 group-hover:text-xl"
+                  onClick={toggleMenu}
                 >
-                    About Us
-                    <span
-                        className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
+                  About Us
+                  <span
+                    className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
                                    transform scale-x-0 group-hover:scale-x-100
                                    transition-transform duration-300 ease-out"
-                    ></span>
-                </a>
+                  ></span>
+                </Link>
               </li>
               <li className="border-b border-gray-300 py-4 px-3">
-                <a
-                    href='#'
-                    className="relative text-gray-100 block font-medium text-lg group
-                               transition-all duration-300 ease-out /* ADDED HERE */
+                <Link
+                  to='/luxurycars/contactus'
+                  className="relative text-gray-100 block font-medium text-lg group
+                               transition-all duration-300 ease-out
                                hover:text-gray-200 group-hover:text-xl"
+                  onClick={toggleMenu}
                 >
-                    Services
-                    <span
-                        className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
+                  Contact
+                  <span
+                    className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
                                    transform scale-x-0 group-hover:scale-x-100
                                    transition-transform duration-300 ease-out"
-                    ></span>
-                </a>
+                  ></span>
+                </Link>
               </li>
-              <li className="border-b border-gray-300 py-4 px-3">
-                <a
-                    href='#'
-                    className="relative text-gray-100 block font-medium text-lg group
-                               transition-all duration-300 ease-out /* ADDED HERE */
-                               hover:text-gray-200 group-hover:text-xl"
+              {/* Language Selector for Mobile */}
+              <li className="py-4 px-3 relative">
+                <label htmlFor="language-select-mobile" className="sr-only">Select Language</label>
+                <select
+                  id="language-select-mobile"
+                  value={selectedLanguage}
+                  onChange={handleLanguageChange}
+                  // REVISED TAILWIND CLASSES FOR SUBTLER LOOK
+                  className="block w-full appearance-none bg-transparent border border-gray-600 px-3 py-1.5 pr-6 rounded-md text-gray-100 text-base focus:outline-none focus:ring-1 focus:ring-gray-400 cursor-pointer"
                 >
-                    Contact
-                    <span
-                        className="absolute left-0 bottom-[-4px] w-full h-0.5 bg-gray-200
-                                   transform scale-x-0 group-hover:scale-x-100
-                                   transition-transform duration-300 ease-out"
-                    ></span>
-                </a>
+                  <option value="en" className="bg-[#21332B]">English</option>
+                  {/* Add other language options here when needed */}
+                </select>
+                {/* Custom arrow for the select dropdown (mobile) */}
+                <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center px-1.5 text-gray-400">
+                  <svg className="fill-current h-3 w-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 6.757 7.586 5.343 9l4.95 4.95z"/>
+                  </svg>
+                </div>
               </li>
             </ul>
           </div>

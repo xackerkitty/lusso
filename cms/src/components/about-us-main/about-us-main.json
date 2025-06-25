@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_about_us_main_about_us_mains",
+  "info": {
+    "displayName": "aboutUsMain",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "AU_TitleText": {
+      "type": "string"
+    },
+    "AU_mainDesc": {
+      "type": "string"
+    },
+    "AU_mainBG": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "buttonTxt": {
+      "type": "string"
+    }
+  }
+}

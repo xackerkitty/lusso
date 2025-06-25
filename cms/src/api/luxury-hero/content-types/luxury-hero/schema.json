@@ -62,6 +62,16 @@
       "type": "component",
       "repeatable": false,
       "component": "about-us-section.about-us-section"
+    },
+    "locationSection": {
+      "type": "component",
+      "repeatable": false,
+      "component": "location-section.location-section"
+    },
+    "ourCars": {
+      "type": "component",
+      "repeatable": false,
+      "component": "our-cars.contact-us"
     }
   }
 }

@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_sr_main_cards_sr_main_cards",
+  "info": {
+    "displayName": "SR_mainCards"
+  },
+  "options": {},
+  "attributes": {
+    "Title": {
+      "type": "string"
+    },
+    "Description": {
+      "type": "text"
+    }
+  }
+}

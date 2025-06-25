@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_location_section_location_sections",
+  "info": {
+    "displayName": "locationSection",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "sectionTitle": {
+      "type": "string"
+    },
+    "descLocation": {
+      "type": "text"
+    }
+  }
+}
