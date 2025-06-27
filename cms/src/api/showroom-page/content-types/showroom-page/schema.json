@@ -4,7 +4,8 @@
   "info": {
     "singularName": "showroom-page",
     "pluralName": "showroom-pages",
-    "displayName": "showroomPage"
+    "displayName": "showroomPage",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -21,6 +22,32 @@
       "type": "component",
       "repeatable": true,
       "component": "sr-main-cards.sr-main-cards"
+    },
+    "discoverTitle": {
+      "type": "string"
+    },
+    "discoverP1": {
+      "type": "string"
+    },
+    "discoverp2": {
+      "type": "string"
+    },
+    "descriptionIMG": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "GalleryImageCard": {
+      "displayName": "GalleryImageCard",
+      "type": "component",
+      "repeatable": true,
+      "component": "gallery-image-card.gallery-image-card"
     }
   }
 }

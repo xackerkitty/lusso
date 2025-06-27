@@ -37,6 +37,19 @@ interface LuxuryHeroAttributes {
     basicinfo?: BasicInfoAttributes;
 }
 
+// NEW INTERFACE for the carSpecifications component
+interface CarSpecificationsAttributes {
+    year?: string;
+    regYear?: string;
+    owners?: string; // Assuming 'owners' is the field name in Strapi for number of owners
+    mileage?: string;
+    exteriorColor?: string;
+    interiorColor?: string;
+    gearType?: string;
+    horsePower?: string;
+    fuelType?: string;
+}
+
 interface StrapiCarAttributes {
     carName: string;
     carBrand: string | null;
@@ -50,15 +63,8 @@ interface StrapiCarAttributes {
     Car_fuel_economy_range?: string;
     carSuspension?: string;
 
-    carYear?: string;
-    carRegYear?: string;
-    carOwners?: string;
-    carMileage?: string;
-    carExteriorColor?: string;
-    carInteriorColor?: string;
-    carGearType?: string;
-    carHorsePower?: string;
-    carFuelType?: string;
+    // This is the key change: carSpecifications is a component
+    carSpecifications?: CarSpecificationsAttributes;
 
     carImage?: SingleMediaRelation;
     carPic?: SingleMediaRelation;
@@ -86,13 +92,13 @@ interface CarDetailData {
     isSold: boolean;
 
     description: string;
-    // Removed 'overview' property as requested
     overviewP1: string;
     overviewP2: string;
     engineDescription: string;
     fuelEconomyRange: string;
     suspension: string;
 
+    // These are now populated from carSpecifications component
     year: string;
     regYear: string;
     numberOfOwners: string;
@@ -257,6 +263,14 @@ const CarDetail: React.FC = () => {
         document.body.style.overflow = 'unset';
     }, []);
 
+
+    // BUTTONSSS
+        
+    
+      
+    const handleEnquireClick = () => {
+        navigate('/luxurycars/contact');
+         };
     // Navigate to next image in modal
     const goToNextImage = useCallback(() => {
         if (car && car.galleryImages.length > 0) {
@@ -323,12 +337,11 @@ const CarDetail: React.FC = () => {
                 }
 
                 const populateFields = [
-                    'carImage', 'carPic', 'backgroundVid', 'brandLogo', 'carDescription', 'carOverview',
+                    'carImage', 'carPic', 'backgroundVid', 'brandLogo', 'carDescription',
                     'carOverviewP1', 'carOverviewP2', 'carEngineDesc',
                     'Car_fuel_economy_range', 'carSuspension',
-                    'carYear', 'carRegYear', 'carOwners', 'carMileage',
-                    'carExteriorColor', 'carInteriorColor', 'carGearType',
-                    'carHorsePower', 'carFuelType', 'checkingIMGs'
+                    'carSpecifications', // <<< KEY CHANGE: Populating the component
+                    'checkingIMGs'
                 ].join(',');
 
                 const carResponse = await fetch(`${strapiBaseUrl}/api/cars?filters[slug][$eq]=${slug}&populate=${populateFields}`);
@@ -373,23 +386,23 @@ const CarDetail: React.FC = () => {
                         brandLogoUrl: brandLogoUrl,
                         isSold: attributes.isSold || false,
 
-                        description: attributes.carDesc|| 'A luxurious and high-performance vehicle offering unparalleled elegance and power.',
-                        
+                        description: attributes.carDesc || 'A luxurious and high-performance vehicle offering unparalleled elegance and power.',
                         overviewP1: attributes.carOverviewP1 || 'From its sleek exterior lines to its meticulously designed interior, every detail has been considered to provide both comfort and control. Advanced aerodynamics ensure stability at high speeds, while the intuitive infotainment system keeps you connected on the go.',
                         overviewP2: attributes.carOverviewP2 || 'Under the hood, a powerful engine awaits, delivering exhilarating acceleration and a refined ride. The cabin is an oasis of tranquility, shielding occupants from road noise and vibrations, making every journey a pleasure. Experience the pinnacle of automotive engineering.',
                         engineDescription: attributes.carEngineDesc || '4.0-liter Twin-Turbocharged V8 engine, producing 507 horsepower and 568 lb-ft of torque. Featuring quattro all-wheel drive system and adaptive air suspension.',
                         fuelEconomyRange: attributes.Car_fuel_economy_range || '18-25 MPG combined',
                         suspension: attributes.carSuspension || 'Adaptive air suspension with multiple driving modes for optimal comfort and performance.',
 
-                        year: attributes.carYear || 'N/A',
-                        regYear: attributes.carRegYear || 'N/A',
-                        numberOfOwners: attributes.carOwners || 'N/A',
-                        mileage: attributes.carMileage || 'N/A',
-                        exteriorColor: attributes.carExteriorColor || 'N/A',
-                        interiorColor: attributes.carInteriorColor || 'N/A',
-                        gearType: attributes.carGearType || 'N/A',
-                        horsePower: attributes.carHorsePower || 'N/A',
-                        fuelType: attributes.carFuelType || 'N/A',
+                        // <<< KEY CHANGE: Accessing fields from the carSpecifications component
+                        year: attributes.carSpecifications?.year || 'N/A',
+                        regYear: attributes.carSpecifications?.regYear || 'N/A',
+                        numberOfOwners: attributes.carSpecifications?.owners || 'N/A',
+                        mileage: attributes.carSpecifications?.mileage || 'N/A',
+                        exteriorColor: attributes.carSpecifications?.exteriorColor || 'N/A',
+                        interiorColor: attributes.carSpecifications?.interiorColor || 'N/A',
+                        gearType: attributes.carSpecifications?.gearType || 'N/A',
+                        horsePower: attributes.carSpecifications?.horsePower || 'N/A',
+                        fuelType: attributes.carSpecifications?.fuelType || 'N/A',
                         galleryImages: galleryImages,
                     });
                 } else {
@@ -503,7 +516,6 @@ const CarDetail: React.FC = () => {
 
                             <div className="mb-8">
                                 <h2 className="text-3xl font-bold text-gray-800 mb-4 border-b pb-2 border-gray-200">Overview</h2>
-                                {/* Removed the conditional rendering for car.overview as it's no longer in the interface */}
                                 <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-4">
                                     {car.overviewP1}
                                 </p>
@@ -622,7 +634,7 @@ const CarDetail: React.FC = () => {
                                         <li className="flex justify-between items-center pb-2">
                                             <span className="flex items-center text-gray-600 text-sm md:text-base">
                                                 <svg className="w-4 h-4 md:w-5 md:h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-1.25-3m-3.5-6a4 4 0 11-8 0 4 4 0 018 0zm-8 6.5V17h8v-3.5"></path>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h10m-1 5l-1 1H8l-1-1m0 0V9m0 0L4 7m0 0l-1-2M4 7V3m0 0h2m0 4V3m0 0l-2-2m2 2h2"></path>
                                                 </svg>
                                                 FUEL TYPE
                                             </span>
@@ -630,7 +642,7 @@ const CarDetail: React.FC = () => {
                                         </li>
                                     </ul>
                                 </div>
-                                <div className="text-center mt-6">
+                                 <div className="text-center mt-6">
                                     <p className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
                                         Price: ${car.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </p>
@@ -639,17 +651,19 @@ const CarDetail: React.FC = () => {
                                             SOLD
                                         </span>
                                     ) : (
-                                        <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-semibold text-lg shadow-lg transition-all duration-300">
+                                        <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-semibold text-lg shadow-lg transition-all duration-300" onClick={handleEnquireClick}>
                                             Enquire Now
                                         </button>
                                     )}
                                 </div>
+                                
+                                {car.isSold && (
+                                    <div className="mt-4 text-center p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
+                                        <p className="font-bold">SOLD!</p>
+                                        <p className="text-sm">This vehicle is no longer available.</p>
+                                    </div>
+                                )}
                             </div>
-                            {car.brandLogoUrl && (
-                                <div className="mt-4 p-4 flex justify-center items-center bg-emerald-900 rounded-xl shadow-lg border border-emerald-800">
-                                    <img src={car.brandLogoUrl} alt={`${car.brand} Logo`} className="max-h-20 max-w-full object-contain" />
-                                </div>
-                            )}
                         </div>
                     </>
                 )}
@@ -660,77 +674,75 @@ const CarDetail: React.FC = () => {
                         {car.galleryImages && car.galleryImages.length > 0 ? (
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                 {car.galleryImages.map((image, index) => (
-                                    <div key={index} className="relative aspect-video overflow-hidden rounded-lg shadow-md cursor-pointer hover:shadow-xl transform hover:scale-102 transition-all duration-300"
+                                    <div key={index} className="relative group cursor-pointer overflow-hidden rounded-lg shadow-md"
                                         onClick={() => openModal(index)}>
                                         <img
                                             src={image}
                                             alt={`Gallery image ${index + 1}`}
-                                            className="w-full h-full object-cover"
-                                            loading="lazy"
+                                            className="w-full h-48 object-cover transform transition-transform duration-300 group-hover:scale-105"
                                         />
-                                        <div className="absolute inset-0 bg-black bg-opacity-25 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+                                        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                             <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m0 0H7"></path>
                                             </svg>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <p className="text-lg text-gray-600 text-center">No gallery images available for this car.</p>
+                            <p className="text-center text-gray-600 text-lg">No gallery images available for this car.</p>
                         )}
                     </div>
                 )}
 
+                {/* Image Modal */}
+                {isModalOpen && car && car.galleryImages.length > 0 && (
+                    <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4" onClick={closeModal}>
+                        <div className="relative w-full max-w-5xl max-h-[90vh] flex items-center justify-center" onClick={e => e.stopPropagation()}>
+                            <button
+                                className="absolute top-4 right-4 text-white text-3xl z-50 hover:text-gray-300"
+                                onClick={closeModal}
+                                aria-label="Close image modal"
+                            >
+                                &times;
+                            </button>
+                            <img
+                                src={car.galleryImages[currentImageIndex]}
+                                alt={`Gallery image ${currentImageIndex + 1}`}
+                                className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-xl"
+                            />
+                            <button
+                                className="absolute left-4 p-2 bg-black bg-opacity-50 text-white rounded-full hover:bg-opacity-75 transition-all duration-200 z-50"
+                                onClick={goToPrevImage}
+                                aria-label="Previous image"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+                            </button>
+                            <button
+                                className="absolute right-4 p-2 bg-black bg-opacity-50 text-white rounded-full hover:bg-opacity-75 transition-all duration-200 z-50"
+                                onClick={goToNextImage}
+                                aria-label="Next image"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                )}
+
                 {activeModel === '3D Model' && (
-                    <div className="w-full bg-white rounded-xl shadow-lg p-6 md:p-8 flex flex-col items-center justify-center min-h-[500px]">
+                    <div className="w-full bg-white rounded-xl shadow-lg p-6 md:p-8 text-center">
                         <h2 className="text-3xl font-bold text-gray-800 mb-6 border-b pb-2 border-gray-200">3D Model</h2>
-                        <p className="text-lg text-gray-600 text-center mb-4">
-                            3D model integration coming soon! This section will feature an interactive 3D model of the car.
+                        <p className="text-lg text-gray-600">
+                            3D model integration coming soon!
                         </p>
-                        <div className="w-full h-96 bg-gray-200 flex items-center justify-center rounded-lg text-gray-500 text-xl font-medium">
-                            [Placeholder for 3D Model Viewer]
+                        {/* Placeholder for 3D model viewer or iframe */}
+                        <div className="bg-gray-200 rounded-lg h-96 flex items-center justify-center mt-6">
+                            <p className="text-gray-500">Your 3D model viewer will appear here.</p>
                         </div>
                     </div>
                 )}
             </div>
-
-            {/* Image Modal */}
-            {isModalOpen && car && car.galleryImages.length > 0 && (
-                <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center p-4">
-                    <button
-                        onClick={closeModal}
-                        className="absolute top-4 right-4 text-white text-4xl font-bold z-50 hover:text-gray-300 transition-colors"
-                        aria-label="Close image modal"
-                    >
-                        &times;
-                    </button>
-                    <button
-                        onClick={goToPrevImage}
-                        className="absolute left-4 text-white text-6xl z-50 hover:text-gray-300 transition-colors hidden md:block"
-                        aria-label="Previous image"
-                    >
-                        &#8249;
-                    </button>
-                    <img
-                        src={car.galleryImages[currentImageIndex]}
-                        alt={`Gallery image ${currentImageIndex + 1}`}
-                        className="max-w-full max-h-full object-contain"
-                    />
-                    <button
-                        onClick={goToNextImage}
-                        className="absolute right-4 text-white text-6xl z-50 hover:text-gray-300 transition-colors hidden md:block"
-                        aria-label="Next image"
-                    >
-                        &#8250;
-                    </button>
-                    <div className="absolute bottom-4 left-0 right-0 text-white text-center text-lg z-50">
-                        {currentImageIndex + 1} / {car.galleryImages.length}
-                    </div>
-                </div>
-            )}
-
-           <div
+             <div
             style={{marginTop: '50px', width: "100%"}}>
                 <Footer logoUrl={companyLogoUrl} />
             </div>

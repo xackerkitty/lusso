@@ -427,7 +427,6 @@ export interface ApiCarCar extends Schema.CollectionType {
     >;
     brandLogo: Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     Car_fuel_economy_range: Attribute.Text;
-    carBrand: Attribute.String;
     carDesc: Attribute.Text;
     carEngineDesc: Attribute.Text;
     carName: Attribute.String;
@@ -459,6 +458,44 @@ export interface ApiCarCar extends Schema.CollectionType {
     slug: Attribute.UID<'api::car.car', 'carName'>;
     updatedAt: Attribute.DateTime;
     updatedBy: Attribute.Relation<'api::car.car', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
+export interface ApiContactUsPageContactUsPage extends Schema.SingleType {
+  collectionName: 'contact_us_pages';
+  info: {
+    description: '';
+    displayName: 'contactUsPage';
+    pluralName: 'contact-us-pages';
+    singularName: 'contact-us-page';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    AddressDesc: Attribute.Text;
+    addressTitle: Attribute.String;
+    contactUsDesc: Attribute.String;
+    contactUsTitle: Attribute.String;
+    createdAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::contact-us-page.contact-us-page',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    emailDesc: Attribute.String;
+    emailTitle: Attribute.String;
+    phoneDesc: Attribute.Text;
+    phoneTitle: Attribute.String;
+    publishedAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    updatedBy: Attribute.Relation<
+      'api::contact-us-page.contact-us-page',
+      'oneToOne',
+      'admin::user'
+    > &
       Attribute.Private;
   };
 }
@@ -753,6 +790,7 @@ export interface ApiResultResult extends Schema.CollectionType {
 export interface ApiShowroomPageShowroomPage extends Schema.SingleType {
   collectionName: 'showroom_pages';
   info: {
+    description: '';
     displayName: 'showroomPage';
     pluralName: 'showroom-pages';
     singularName: 'showroom-page';
@@ -768,6 +806,14 @@ export interface ApiShowroomPageShowroomPage extends Schema.SingleType {
       'admin::user'
     > &
       Attribute.Private;
+    descriptionIMG: Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+    discoverP1: Attribute.String;
+    discoverp2: Attribute.String;
+    discoverTitle: Attribute.String;
+    GalleryImageCard: Attribute.Component<
+      'gallery-image-card.gallery-image-card',
+      true
+    >;
     mainDesc: Attribute.Text;
     mainTitle: Attribute.String;
     publishedAt: Attribute.DateTime;
@@ -1354,6 +1400,7 @@ declare module '@strapi/types' {
       'admin::user': AdminUser;
       'api::au-main-section.au-main-section': ApiAuMainSectionAuMainSection;
       'api::car.car': ApiCarCar;
+      'api::contact-us-page.contact-us-page': ApiContactUsPageContactUsPage;
       'api::featured-car.featured-car': ApiFeaturedCarFeaturedCar;
       'api::fixture.fixture': ApiFixtureFixture;
       'api::gallery.gallery': ApiGalleryGallery;

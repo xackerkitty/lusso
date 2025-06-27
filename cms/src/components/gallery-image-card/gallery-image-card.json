@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_gallery_image_card_gallery_image_cards",
+  "info": {
+    "displayName": "GalleryImageCard",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "Title": {
+      "type": "string"
+    },
+    "Description": {
+      "type": "string"
+    },
+    "spanColumns": {
+      "type": "integer"
+    }
+  }
+}

@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from "framer-motion";
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
-
+// --- Existing Interfaces (Keep these as they are) ---
 interface MediaAttributes {
   url: string;
   mime?: string;
@@ -19,12 +19,10 @@ interface MediaDataItem {
   attributes: MediaAttributes;
 }
 
-// Define a specific interface for single media fields (e.g., companyLogo, videoPoster)
 interface SingleMediaData {
   data: MediaDataItem | null;
 }
 
-// Define a specific interface for multiple media fields (e.g., carPhoto if it were an array)
 interface MultiMediaData {
   data: MediaDataItem[];
 }
@@ -34,135 +32,146 @@ interface BasicInfoAttributes {
   companyLogo?: SingleMediaData;
 }
 
-
-
-// Main interface for the luxury-hero attributes
 interface LuxuryHeroAttributes {
   basicinfo?: BasicInfoAttributes;
   videoPoster?: SingleMediaData;
-  videoUrl?: SingleMediaData; // Assuming videoUrl also comes as a media object
+  videoUrl?: SingleMediaData;
   aboutUsBackground?: SingleMediaData;
   porscheImage?: SingleMediaData;
- 
 }
 
+// --- New Interface for Contact Us Page Data ---
+interface ContactUsPageAttributes {
+  contactUsTitle?: string;
+  contactUsDesc?: string;
+  addressTitle?: string;
+  addressDesc?: string;
+  phoneTitle?: string;
+  phoneDesc?: string;
+  emailTitle?: string;
+  emailDesc?: string;
+}
 
 const ContactPage = () => {
-    // States for Strapi data fetching
-      const [heroData, setHeroData] = useState<LuxuryHeroAttributes | null>(null);
-      const [loading, setLoading] = useState(true);
-      const [error, setError] = useState<string | null>(null);
-      
-    
-      // Helper function to get media URL from Strapi media object
-      const getMediaUrl = (
-        mediaDataContent:
-          | MediaDataItem
-          | MediaDataItem[]
-          | string
-          | null
-          | undefined
-      ): string => {
-        let relativePath: string | undefined;
-    
-        if (typeof mediaDataContent === "string") {
-          relativePath = mediaDataContent; // It's already a direct URL string
-        } else if (mediaDataContent && !Array.isArray(mediaDataContent)) {
-          // It's a single MediaDataItem (e.g., logo.data, poster.data)
-          relativePath = mediaDataContent.attributes?.url;
-        } else if (Array.isArray(mediaDataContent) && mediaDataContent.length > 0) {
-          // It's an array of MediaDataItem (e.g., carPhoto.data)
-          relativePath = mediaDataContent[0].attributes?.url;
-        } else {
-          console.warn(
-            "getMediaUrl: No valid mediaDataContent provided or it's empty."
+  // States for Strapi data fetching
+  const [heroData, setHeroData] = useState<LuxuryHeroAttributes | null>(null);
+  const [contactData, setContactData] = useState<ContactUsPageAttributes | null>(null); // New state for contact data
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Helper function to get media URL from Strapi media object (Keep this as is)
+  const getMediaUrl = (
+    mediaDataContent:
+      | MediaDataItem
+      | MediaDataItem[]
+      | string
+      | null
+      | undefined
+  ): string => {
+    let relativePath: string | undefined;
+
+    if (typeof mediaDataContent === "string") {
+      relativePath = mediaDataContent;
+    } else if (mediaDataContent && !Array.isArray(mediaDataContent)) {
+      relativePath = mediaDataContent.attributes?.url;
+    } else if (Array.isArray(mediaDataContent) && mediaDataContent.length > 0) {
+      relativePath = mediaDataContent[0].attributes?.url;
+    } else {
+      console.warn(
+        "getMediaUrl: No valid mediaDataContent provided or it's empty."
+      );
+      return "";
+    }
+
+    if (!relativePath) {
+      console.warn(
+        "getMediaUrl: extracted relativePath was empty or undefined."
+      );
+      return "";
+    }
+
+    const STRAPI_BASE_URL = "http://localhost:1337";
+
+    let fullUrl = "";
+    if (
+      relativePath.startsWith("http://") ||
+      relativePath.startsWith("https://")
+    ) {
+      fullUrl = relativePath;
+    } else {
+      fullUrl = `${STRAPI_BASE_URL}${
+        relativePath.startsWith("/") ? "" : "/"
+      }${relativePath}`;
+    }
+
+    console.log(
+      `DEBUG: getMediaUrl input: "${relativePath}" -> output URL: "${fullUrl}"`
+    );
+    return fullUrl;
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // Fetch Luxury Hero Data (for Navbar logo)
+        const heroApiUrl =
+          "http://localhost:1337/api/luxury-heroes?populate[basicinfo][populate]=companyLogo";
+        const heroResponse = await fetch(heroApiUrl);
+        if (!heroResponse.ok) {
+          throw new Error(
+            `HTTP error fetching hero data! Status: ${heroResponse.status}`
           );
-          return ""; // Return empty string or a placeholder if no path
         }
-    
-        if (!relativePath) {
-          console.warn(
-            "getMediaUrl: extracted relativePath was empty or undefined."
-          );
-          return "";
-        }
-    
-        // Ensure this base URL is correct for your Strapi instance
-        // It's highly recommended to use environment variables for this.
-        // For example: process.env.REACT_APP_STRAPI_BASE_URL
-        const STRAPI_BASE_URL = "http://localhost:1337";
-    
-        let fullUrl = "";
-        if (
-          relativePath.startsWith("http://") ||
-          relativePath.startsWith("https://")
-        ) {
-          fullUrl = relativePath; // Already a full URL
+        const heroJson = await heroResponse.json();
+        if (heroJson?.data?.length > 0) {
+          setHeroData(heroJson.data[0].attributes);
         } else {
-          // Handle cases where relativePath might start with a leading slash or not
-          fullUrl = `${STRAPI_BASE_URL}${
-            relativePath.startsWith("/") ? "" : "/"
-          }${relativePath}`;
+          console.warn("API returned no data for Luxury Hero.");
         }
-    
-        console.log(
-          `DEBUG: getMediaUrl input: "${relativePath}" -> output URL: "${fullUrl}"`
-        );
-        return fullUrl;
-      };
-    
-      useEffect(() => {
-        // AOS.init({
-        //   duration: 1000,
-        //   once: true,
-        // }); // Uncomment if you are using AOS and have it imported
-    
-        const fetchData = async () => {
-          try {
-            const heroApiUrl =
-              "http://localhost:1337/api/luxury-heroes?populate[basicinfo][populate]=companyLogo&populate[heroSection][populate]=*&populate[videoPoster]=*&populate[videoUrl]=*&populate[aboutUsBackground]=*&populate[porscheImage]=*&populate[featuredCar][populate]=*&populate[aboutUsSection][populate]=*&populate[locationSection][populate]=*&populate[ourCars][populate]=*";
-    
-            const heroResponse = await fetch(heroApiUrl);
-            if (!heroResponse.ok) {
-              throw new Error(
-                `HTTP error fetching hero data! Status: ${heroResponse.status}`
-              );
-            }
-            const heroJson = await heroResponse.json();
-            console.log("Fetched Luxury Hero Data:", heroJson);
-    
-            if (heroJson?.data?.length > 0) {
-              const attributes = heroJson.data[0].attributes;
-              setHeroData(attributes);
-              console.log("Featured Cars Data:", attributes.featuredCar);
-            } else {
-              setHeroData(null);
-              console.warn("API returned no data for Luxury Hero.");
-            }
-          } catch (err: any) {
-            setError(`Failed to load content: ${err.message}`);
-            console.error("Error fetching data:", err);
-          } finally {
-            setLoading(false);
-          }
-        };
-    
-        fetchData();
-      }, []);
-    
-      // Safely get the logo URL from the fetched heroData
-      const logoUrl = heroData?.basicinfo?.companyLogo?.data
-        ? getMediaUrl(heroData.basicinfo.companyLogo.data)
-        : "";
-    
-      // Render loading or error state
-      if (loading) {
-        return <div className="text-center p-8">Loading showroom data...</div>;
+
+        // --- Fetch Contact Us Page Data ---
+        const contactApiUrl = "http://localhost:1337/api/contact-us-page"; // Ensure this is the correct API endpoint for your single type
+        const contactResponse = await fetch(contactApiUrl);
+        if (!contactResponse.ok) {
+          throw new Error(
+            `HTTP error fetching contact data! Status: ${contactResponse.status}`
+          );
+        }
+        const contactJson = await contactResponse.json();
+        console.log("Fetched Contact Us Page Data:", contactJson);
+
+        if (contactJson?.data?.attributes) {
+          setContactData(contactJson.data.attributes);
+        } else {
+          console.warn("API returned no data for Contact Us Page.");
+        }
+
+      } catch (err: any) {
+        setError(`Failed to load content: ${err.message}`);
+        console.error("Error fetching data:", err);
+      } finally {
+        setLoading(false);
       }
-    
-      if (error) {
-        return <div className="text-center p-8 text-red-600">Error: {error}</div>;
-      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Safely get the logo URL from the fetched heroData
+  const logoUrl = heroData?.basicinfo?.companyLogo?.data
+    ? getMediaUrl(heroData.basicinfo.companyLogo.data)
+    : "";
+
+  // Render loading or error state
+  if (loading) {
+    return <div className="text-center p-8">Loading contact information...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center p-8 text-red-600">Error: {error}</div>;
+  }
+
   return (
     <div className="min-h-screen bg-white text-[#013220] font-sans overflow-hidden">
       <Navbar largeLogoSrc={logoUrl} smallLogoSrc={logoUrl} />
@@ -176,7 +185,7 @@ const ContactPage = () => {
           transition={{ duration: 0.6 }}
           className="text-4xl md:text-5xl font-bold mb-12 text-center text-[#013220]"
         >
-          Contact Lusso Luxury Cars
+          {contactData?.contactUsTitle || "Contact Lusso Luxury Cars"}
         </motion.h1>
 
         <div className="grid md:grid-cols-2 gap-12">
@@ -231,27 +240,26 @@ const ContactPage = () => {
             transition={{ duration: 0.8 }}
             className="space-y-6"
           >
-            <h2 className="text-2xl font-semibold">Get in Touch</h2>
+            <h2 className="text-2xl font-semibold">{contactData?.contactUsTitle || "Get in Touch"}</h2>
             <p className="text-gray-700">
-              Whether you're exploring our exclusive models or need help with a
-              purchase, our dedicated support team is ready to assist you.
+              {contactData?.contactUsDesc || "Whether you're exploring our exclusive models or need help with a purchase, our dedicated support team is ready to assist you."}
             </p>
 
             <div>
-              <h3 className="text-lg font-medium">Address</h3>
+              <h3 className="text-lg font-medium">{contactData?.addressTitle || "Address"}</h3>
               <p className="text-gray-700">
-                274 Agmashenebeli Alley, Tbilisi 0159, Georgia.
+                {contactData?.addressDesc || "274 Agmashenebeli Alley, Tbilisi 0159, Georgia."}
               </p>
             </div>
 
             <div>
-              <h3 className="text-lg font-medium">Phone</h3>
-              <p className="text-gray-700">+995 555188888</p>
+              <h3 className="text-lg font-medium">{contactData?.phoneTitle || "Phone"}</h3>
+              <p className="text-gray-700">{contactData?.phoneDesc || "+995 555188888"}</p>
             </div>
 
             <div>
-              <h3 className="text-lg font-medium">Email</h3>
-              <p className="text-gray-700">info@lussoluxurycar.com</p>
+              <h3 className="text-lg font-medium">{contactData?.emailTitle || "Email"}</h3>
+              <p className="text-gray-700">{contactData?.emailDesc || "info@lussoluxurycar.com"}</p>
             </div>
 
             <div className="flex gap-4 mt-6">

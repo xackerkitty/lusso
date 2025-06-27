@@ -155,6 +155,20 @@ export interface FeaturedCarFeaturedCar extends Schema.Component {
   };
 }
 
+export interface GalleryImageCardGalleryImageCard extends Schema.Component {
+  collectionName: 'components_gallery_image_card_gallery_image_cards';
+  info: {
+    description: '';
+    displayName: 'GalleryImageCard';
+  };
+  attributes: {
+    Description: Attribute.String;
+    Image: Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+    spanColumns: Attribute.Integer;
+    Title: Attribute.String;
+  };
+}
+
 export interface HeroSectionHerosection extends Schema.Component {
   collectionName: 'components_hero_section_herosections';
   info: {
@@ -246,6 +260,7 @@ declare module '@strapi/types' {
       'brands.brands': BrandsBrands;
       'car-specifications.car-specifications': CarSpecificationsCarSpecifications;
       'featured-car.featured-car': FeaturedCarFeaturedCar;
+      'gallery-image-card.gallery-image-card': GalleryImageCardGalleryImageCard;
       'hero-section.herosection': HeroSectionHerosection;
       'lc-au-call-to-action.lc-au-call-to-action': LcAuCallToActionLcAuCallToAction;
       'location-section.location-section': LocationSectionLocationSection;

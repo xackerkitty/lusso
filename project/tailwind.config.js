@@ -19,8 +19,8 @@ export default {
         // --- NEW CUSTOM COLORS FOR SHOWROOM PAGE ---
         'dark-green-main': '#1A431A', // Example specific dark green for showroom bg
         'dark-green-accent': '#2C5F2D', // Example slightly lighter dark green for showroom section
-        'button-green-primary': '#4CAF50', // Example button green
-        'button-green-hover': '#45A049', // Example hover green
+        'green-primary': '#4CAF50', // Renamed from button-green-primary for clarity and general use
+        'green-hover': '#45A049', // Renamed from button-green-hover
         // --- END NEW CUSTOM COLORS ---
 
         // Durum renkleri
@@ -43,8 +43,9 @@ export default {
           // which will pick up your `gray: { 900: ... }` if no other definition exists.
           // If you want your `grayTextLight` and `grayTextMedium` from ShowroomPage.tsx
           // to map to your CSS variables, you'd define them like:
-          // 100: 'rgb(var(--color-gray-100) / <alpha-value>)', // Example
-          // 300: 'rgb(var(--color-gray-300) / <alpha-value>)', // Example
+          100: 'rgb(243 244 246 / <alpha-value>)', // Standard Tailwind gray-100
+          300: 'rgb(209 213 219 / <alpha-value>)', // Standard Tailwind gray-300
+          400: 'rgb(156 163 175 / <alpha-value>)', // Standard Tailwind gray-400
           600: 'rgb(var(--color-text) / <alpha-value>)', // Paragraf metni
           700: 'rgb(var(--color-text) / <alpha-value>)', // Nav linklerinde
           800: 'rgb(var(--color-text) / <alpha-value>)', // Ana metin rengi
@@ -82,12 +83,9 @@ export default {
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
         serif: ['Playfair Display', 'serif'],
-        // Assuming 'font-body' and 'font-heading' from ShowroomPage.tsx are mapped here
-        // If not, you need to add them:
-        body: ['Inter', 'sans-serif'], // Example: If 'font-body' should be Inter
-        heading: ['Playfair Display', 'serif'], // Example: If 'font-heading' should be Playfair Display
+        body: ['Inter', 'sans-serif'], // Explicitly mapping for clarity
+        heading: ['Playfair Display', 'serif'], // Explicitly mapping for clarity
       },
-      // --- ADD KEYFRAMES AND ANIMATION HERE ---
       keyframes: {
         'fade-in-up-custom': {
           '0%': {
@@ -99,16 +97,36 @@ export default {
             transform: 'translateY(0)', // Ends at original position
           },
         },
+        // If you have animate-slide-in, ensure its 0% state is also hidden/out-of-position
+        'slide-in': {
+            '0%': {
+                transform: 'translateX(-100%)',
+                opacity: '0',
+            },
+            '100%': {
+                transform: 'translateX(0)',
+                opacity: '1',
+            },
+        },
+        // Ensure shimmer-light and breathe keyframes are defined if used
+        'shimmer-light': {
+            '0%': { backgroundPosition: '-200% 0' },
+            '100%': { backgroundPosition: '200% 0' },
+        },
+        'breathe': {
+            '0%, 100%': { transform: 'scale(1)', opacity: '1' },
+            '50%': { transform: 'scale(1.01)', opacity: '0.95' },
+        },
       },
       animation: {
         'fade-in-up-custom': 'fade-in-up-custom 1s ease-out forwards',
-        // 'forwards' ensures the animation stays at its end state
+        'slide-in': 'slide-in 0.8s ease-out forwards', // Example, adjust duration as needed
+        'shimmer-light': 'shimmer-light 3s infinite linear',
+        'breathe': 'breathe 3s ease-in-out infinite',
       },
-      // --- ADD BACKGROUND IMAGE FOR VIGNETTE HERE ---
       backgroundImage: {
         'radial-gradient-vignette': 'radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.5) 75%, rgba(0,0,0,0.8) 100%)',
       },
-      // --- END KEYFRAMES AND ANIMATION ---
     },
   },
   plugins: [],

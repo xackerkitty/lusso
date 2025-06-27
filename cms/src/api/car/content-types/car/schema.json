@@ -14,9 +14,6 @@
     "carName": {
       "type": "string"
     },
-    "carBrand": {
-      "type": "string"
-    },
     "carPrice": {
       "type": "string"
     },

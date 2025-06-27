@@ -3,7 +3,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import "./components/navbar.css";
 import "./scr/css/style.css";
-
+import { useNavigate } from 'react-router-dom';
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { motion } from "framer-motion";
@@ -233,6 +233,27 @@ const LuxuryHeroFetcher = () => {
         heroData?.aboutUsSection?.aboutUsBackground?.data?.attributes?.url
       )
     : "";
+
+
+    // BUTTONSSS
+    const navigate = useNavigate(); // Initialize the navigate hook
+
+  
+    const handleLearnMoreClick = () => {
+    navigate('/luxurycars/showroom');
+     };
+
+    const handleAboutUsClick = () => {
+    navigate('/luxurycars/aboutus');
+     };
+
+    const handleContactUsClick = () => {
+    navigate('/luxurycars/contact');
+     };
+
+     const handleOurCarsClick = () => {
+    navigate('/luxurycars/cars');
+     };
 
   const porscheUrl = heroData?.porscheImage?.data
     ? getMediaUrl(heroData.porscheImage.data)
@@ -473,7 +494,10 @@ const LuxuryHeroFetcher = () => {
             {(heroData?.heroSection?.buttonTxt ||
               heroData?.cta ||
               "Learn More") && (
-              <button className="bg-primary hover:bg-primary/80 text-heading px-10 py-5 rounded-xl font-semibold text-lg shadow-lg transition-all duration-300">
+              <button
+            className="bg-primary hover:bg-primary/80 text-heading px-10 py-5 rounded-xl font-semibold text-lg shadow-lg transition-all duration-300"
+            onClick={handleLearnMoreClick} // Add the onClick handler here
+          >
                 {heroData?.heroSection?.buttonTxt
                   ? heroData.heroSection.buttonTxt
                   : heroData?.cta || "Learn More"}
@@ -517,7 +541,7 @@ const LuxuryHeroFetcher = () => {
             </h1>
 
             <p className="">{heroData?.aboutUsSection?.aboutUsDesc}</p>
-            <button className="aboutus-button">
+            <button className="aboutus-button" onClick={handleAboutUsClick}>
               <span>{heroData?.aboutUsSection?.buttonText}</span>
             </button>
           </div>
@@ -566,13 +590,13 @@ const LuxuryHeroFetcher = () => {
                 <>
                   <button
                     className="button_elegant button_v1 get-bigger" 
-                    
+                    onClick={handleOurCarsClick}
                   >
                     See more
                   </button>
                   <button
                     className="button_elegant button_v2 get-bigger"
-                    
+                    onClick={handleContactUsClick}
                   >
                     Contact
                   </button>
@@ -809,7 +833,7 @@ const LuxuryHeroFetcher = () => {
                 <p className="text-white text-lg sm:text-xl mb-8 max-w-2xl mx-auto">
                  {heroData?.ourCars?.ourCarsDesc}
                 </p>
-                {/* Car Brand Logos moved into the main content section */}
+              
                 <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 md:gap-8 mb-12 px-2">
                   <img
                     src="https://upload.wikimedia.org/wikipedia/en/thumb/d/df/Lamborghini_Logo.svg/1200px-Lamborghini_Logo.svg.png"
@@ -842,7 +866,7 @@ const LuxuryHeroFetcher = () => {
                     className="h-20 w-20 object-contain logo-item cursor-pointer"
                   />
                 </div>
-                <button className="bg-white text-gray-800 px-8 py-3 rounded-full text-lg font-semibold hover:text-gray-900 explore-button shadow-lg">
+                <button className="bg-white text-gray-800 px-8 py-3 rounded-full text-lg font-semibold hover:text-gray-900 explore-button shadow-lg" onClick={handleOurCarsClick}>
                    {heroData?.ourCars?.ourCarsBtn}
                 </button>
               </div>
@@ -879,7 +903,7 @@ const LuxuryHeroFetcher = () => {
           {/* Map container with car image positioned at bottom right */}
           <div className="relative w-full max-w-4xl h-96 bg-gray-950 rounded-xl shadow-2xl overflow-hidden border-4 border-gray-700">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d11979.791557022204!2d44.75084918731362!3d41.76100127815343!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4044735c0269389f%3A0xc6e43f551c6c04f9!2s274%20David%20Agmashenebeli%20Alley%2C%20Tbilisi!5e0!3m2!1sen!2sge!4v1718274797017!5m2!1sen!2sge"
+             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1428.6398474235532!2d44.76948188322064!3d41.819053622244475!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4044735ac5019363%3A0x8b995a731c788f59!2sLusso%20Luxury%20Car!5e1!3m2!1sen!2sge!4v1750926931945!5m2!1sen!2sge"
               width="100%"
               height="100%"
               style={{ border: 0 }}

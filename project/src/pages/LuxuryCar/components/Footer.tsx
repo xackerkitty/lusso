@@ -104,7 +104,7 @@ const Footer: React.FC<FooterProps> = ({ logoUrl, className }) => {
             <ul className="space-y-2">
               <li>
                 <a
-                  href="#"
+                  href="/luxurycars"
                   className="hover:text-white transition duration-300"
                 >
                   Home
@@ -112,7 +112,7 @@ const Footer: React.FC<FooterProps> = ({ logoUrl, className }) => {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="/luxurycars/aboutus"
                   className="hover:text-white transition duration-300"
                 >
                   About Us
@@ -120,7 +120,7 @@ const Footer: React.FC<FooterProps> = ({ logoUrl, className }) => {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="/luxurycars/cars"
                   className="hover:text-white transition duration-300"
                 >
                   Cars
@@ -151,13 +151,13 @@ const Footer: React.FC<FooterProps> = ({ logoUrl, className }) => {
           </div>
           <div className="w-full md:w-auto flex justify-center md:justify-end space-x-4">
             <a
-              href="#"
+              href="/luxurycars"
               className="hover:text-white transition duration-300"
             >
               Home
             </a>
             <a
-              href="#"
+              href="/luxurycars/contact"
               className="hover:text-white transition duration-300"
             >
               Contact Us

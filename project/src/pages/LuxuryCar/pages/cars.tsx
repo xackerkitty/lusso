@@ -1,9 +1,11 @@
 // src/pages/LuxuryCar/pages/cars.tsx
 
-import React, { useState, useEffect, useRef } from 'react'; // Import useRef for DOM element reference
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import Navbar from '../components/Navbar'; // Assuming Navbar is in this path
+// Assuming Navbar and Footer components are available at these paths
+import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+
 // --- INTERFACES ---
 interface MediaAttributes {
     url: string;
@@ -25,18 +27,20 @@ interface SingleMediaRelation {
 }
 
 interface MultipleMediaRelation {
-    data: MediaDataItem[]; // Array for multiple images like carSliderImg
+    data: MediaDataItem[];
 }
 
+// Updated StrapiCarAttributes: 'Brand' is a direct string (enumeration)
 interface StrapiCarAttributes {
     carName: string;
-    carBrand: string | null;
+    Brand: string; // CORRECTED: Now 'Brand' with capital 'B'
     carPrice: string;
     slug: string;
-    carImage?: SingleMediaRelation; // Remains for main image if you still have it, otherwise can be removed
-    brandLogo?: SingleMediaRelation;
-    carSliderImg?: MultipleMediaRelation; // Field for multiple slider images
-    isSold?: boolean;
+    carImage?: SingleMediaRelation;
+    brandLogo?: SingleMediaRelation; // This is a separate image field on the car itself
+    carSliderImg?: MultipleMediaRelation;
+    carSold?: boolean; // Matches the field name in Strapi
+    display?: boolean; // NEW: Added display property from Strapi
 }
 
 interface StrapiCarData {
@@ -47,16 +51,17 @@ interface StrapiCarData {
 interface Car {
     id: number;
     model: string;
-    brand: string;
+    Brand: string; // CORRECTED: This property will store the car's brand name (e.g., "Ferrari") with capital 'B'
     price: number;
     slug: string;
-    imageUrl: string; // Could become the first image of slider, or a placeholder
-    brandLogoUrl: string;
-    sliderImages: string[]; // Array of URLs for the slider
-    isSold: boolean;
+    imageUrl: string;
+    brandLogoUrl: string; // This would typically come from the related Brand entity's logo
+    sliderImages: string[];
+    isSold: boolean; // Internal model name for your React components
+    display: boolean; // NEW: Added display property for the internal Car model
 }
 
-// Interfaces for LuxuryHero data (for Navbar logo)
+// Interfaces for LuxuryHero data (for Navbar logo) - no changes needed here, just for context
 interface BasicInfoAttributes {
     companyName?: string;
     companyLogo?: SingleMediaRelation;
@@ -75,7 +80,9 @@ interface FilterSidebarProps {
     onMaxPriceChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     selectedBrands: string[];
     onBrandChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    availableBrands: string[];
+    availableBrands: string[]; // This list is passed to the sidebar
+    selectedSoldStatus: 'all' | 'sold' | 'not-sold';
+    onSoldStatusChange: (status: 'all' | 'sold' | 'not-sold') => void;
 }
 
 interface CarCardProps {
@@ -108,18 +115,37 @@ const getMediaUrl = (
     if (relativePath.startsWith("http://") || relativePath.startsWith("https://")) {
         return relativePath;
     } else {
+        // Ensure leading slash for relative paths
         return `${baseUrl}${relativePath.startsWith("/") ? "" : "/"}${relativePath}`;
     }
 };
 
 // --- Hero Section Component ---
 const HeroSection: React.FC = () => (
+
+// --- Hero Section Component ---
     <header className="relative bg-gray-900 text-white py-24 md:py-32 overflow-hidden shadow-xl">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('https://placehold.co/1920x600/333333/ffffff?text=Luxury+Cars+Background')" }}>
-            <div className="absolute inset-0 bg-black opacity-50"></div>
+        {/* Blue Gradient Background */}
+        <div className="absolute inset-0" style={{
+            background: "linear-gradient(to right,rgb(45, 58, 46),rgb(0, 27, 6))", marginTop: "3rem" /* Shades of blue */
+        }}>
+            {/* Blurry "Lusso" Text */}
+            <div
+                className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                style={{
+                    fontSize: '10rem', // Adjust font size as needed
+                    fontWeight: 'bold',
+                    color: 'rgba(255, 255, 255, 0.33)', // Very light white for the blurry effect
+                    filter: 'blur(3px)', // Adjust blur amount as needed
+                    zIndex: 0, // Ensure it's behind the main content
+                }}
+            >
+                Lusso
+            </div>
+            <div className="absolute inset-0 bg-black opacity-30"></div> {/* Subtle overlay for depth */}
         </div>
-        <div className="container mx-auto relative z-10 text-center px-4">
-            <h1 className="text-4xl md:text-6xl font-bold mb-4">Our Cars</h1>
+        <div className="container mx-auto relative z-10 text-center px-4" style={{marginTop: "3rem"}}>
+            <h1 className="text-4xl md:text-6xl font-bold mb-4 text-white">Our Cars</h1>
             <p className="text-lg md:text-xl opacity-90">Explore our exclusive collection of luxury vehicles.</p>
         </div>
     </header>
@@ -129,10 +155,12 @@ const HeroSection: React.FC = () => (
 const FilterSidebar: React.FC<FilterSidebarProps> = ({
     searchTerm, onSearchChange,
     minPrice, maxPrice, onMinPriceChange, onMaxPriceChange,
-    selectedBrands, onBrandChange, availableBrands
+    selectedBrands, onBrandChange, availableBrands,
+    selectedSoldStatus, onSoldStatusChange
 }) => {
     const [isPriceExpanded, setIsPriceExpanded] = useState(true);
     const [isBrandsExpanded, setIsBrandsExpanded] = useState(true);
+    const [isAvailabilityExpanded, setIsAvailabilityExpanded] = useState(true);
 
     return (
         <aside className="w-full lg:w-1/4 bg-white p-6 rounded-xl shadow-lg h-fit mb-8 lg:mb-0 min-h-0">
@@ -193,6 +221,60 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                 </div>
             </div>
 
+            {/* Availability Filter Section */}
+            <div className="mb-6">
+                <div
+                    className="flex justify-between items-center mb-2 cursor-pointer select-none"
+                    onClick={() => setIsAvailabilityExpanded(!isAvailabilityExpanded)}
+                >
+                    <label className="block text-gray-700 text-sm font-medium">Availability</label>
+                    <svg className={`w-4 h-4 text-gray-500 transform transition-transform duration-300 ${isAvailabilityExpanded ? 'rotate-0' : '-rotate-90'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+                <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isAvailabilityExpanded ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'}`}>
+                    <div className="border-t border-gray-200 pt-4">
+                        <div className="flex items-center mb-2">
+                            <input
+                                type="radio"
+                                id="status-all"
+                                name="soldStatus"
+                                value="all"
+                                checked={selectedSoldStatus === 'all'}
+                                onChange={() => onSoldStatusChange('all')}
+                                className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500 accent-blue-600"
+                            />
+                            <label htmlFor="status-all" className="ml-2 text-gray-700 text-sm">All</label>
+                        </div>
+                        <div className="flex items-center mb-2">
+                            <input
+                                type="radio"
+                                id="status-not-sold"
+                                name="soldStatus"
+                                value="not-sold"
+                                checked={selectedSoldStatus === 'not-sold'}
+                                onChange={() => onSoldStatusChange('not-sold')}
+                                className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500 accent-blue-600"
+                            />
+                            <label htmlFor="status-not-sold" className="ml-2 text-gray-700 text-sm">Available</label>
+                        </div>
+                        <div className="flex items-center mb-2">
+                            <input
+                                type="radio"
+                                id="status-sold"
+                                name="soldStatus"
+                                value="sold"
+                                checked={selectedSoldStatus === 'sold'}
+                                onChange={() => onSoldStatusChange('sold')}
+                                className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500 accent-blue-600"
+                            />
+                            <label htmlFor="status-sold" className="ml-2 text-gray-700 text-sm">Sold</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Brands Filter Section */}
             <div className="mb-0">
                 <div
                     className="flex justify-between items-center mb-2 cursor-pointer select-none"
@@ -206,21 +288,21 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                 <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isBrandsExpanded ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'}`}>
                     <div className="border-t border-gray-200 pt-4 custom-scrollbar max-h-40 overflow-y-auto">
                         {availableBrands.length > 0 ? (
-                            availableBrands.map(brand => (
-                                <div key={brand} className="flex items-center mb-2">
+                            availableBrands.map(Brand => ( // Use Brand here for mapping and key
+                                <div key={Brand} className="flex items-center mb-2">
                                     <input
                                         type="checkbox"
-                                        id={`brand-${brand}`}
+                                        id={`Brand-${Brand}`}
                                         className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500 accent-blue-600"
-                                        value={brand}
-                                        checked={selectedBrands.includes(brand)}
+                                        value={Brand}
+                                        checked={selectedBrands.includes(Brand)}
                                         onChange={onBrandChange}
                                     />
-                                    <label htmlFor={`brand-${brand}`} className="ml-2 text-gray-700 text-sm">{brand}</label>
+                                    <label htmlFor={`Brand-${Brand}`} className="ml-2 text-gray-700 text-sm">{Brand}</label>
                                 </div>
                             ))
                         ) : (
-                            <p className="text-gray-500 text-sm">No brands available.</p>
+                            <p className="text-gray-500 text-sm">No brands available (check hardcoded list).</p>
                         )}
                     </div>
                 </div>
@@ -245,19 +327,16 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
         }
 
         const containerWidth = imageContainerRef.current.offsetWidth;
-        const mouseX = e.nativeEvent.offsetX; // Mouse X position relative to the element
+        const mouseX = e.nativeEvent.offsetX;
 
-        // Calculate segment width for each image
         const segmentWidth = containerWidth / car.sliderImages.length;
         const newIndex = Math.floor(mouseX / segmentWidth);
 
-        // Update index only if it's different to prevent unnecessary re-renders
         if (newIndex !== currentImageIndex && newIndex < car.sliderImages.length && newIndex >= 0) {
             setCurrentImageIndex(newIndex);
         }
     };
 
-    // Reset index when mouse leaves the card
     const handleMouseLeave = () => {
         setCurrentImageIndex(0);
     };
@@ -272,13 +351,13 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
             {car.isSold && (
                 <div className="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full z-10">Sold</div>
             )}
+
             <div
                 ref={imageContainerRef}
                 className="relative w-full h-40 overflow-hidden"
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
             >
-                {/* Image Display */}
                 {imageError || !displayImageUrl ? (
                     <div className="w-full h-full bg-gray-300 flex flex-col items-center justify-center text-gray-600 text-center p-4">
                         <p className="font-bold text-lg mb-1">{car.model}</p>
@@ -288,13 +367,11 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
                     <img
                         src={displayImageUrl}
                         alt={`${car.model} - ${currentImageIndex + 1}`}
-                        // Added transition for smoothness
                         className="w-full h-full object-cover transition-opacity duration-100 ease-in-out"
                         onError={handleImageError}
                     />
                 )}
 
-                {/* Slider Indicators (Dots) */}
                 {car.sliderImages.length > 1 && (
                     <div className="absolute bottom-2 left-0 right-0 flex justify-center space-x-1">
                         {car.sliderImages.map((_, idx) => (
@@ -310,19 +387,20 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
                 <div className="flex items-center mb-0.5">
                     {brandLogoError || !car.brandLogoUrl ? (
                         <div className="w-6 h-6 mr-2 flex items-center justify-center bg-gray-200 rounded-full text-gray-500 text-xs">
-                            {car.brand ? car.brand.charAt(0) : ''}
+                            {car.Brand ? car.Brand.charAt(0) : ''} {/* CORRECTED: Access car.Brand */}
                         </div>
                     ) : (
                         <img
                             src={car.brandLogoUrl}
-                            alt={`${car.brand} Logo`}
+                            alt={`${car.Brand} Logo`} 
                             className="w-6 h-6 mr-2 object-contain"
                             onError={handleBrandLogoError}
                         />
                     )}
-                    <span className="text-gray-500 text-sm">{car.brand}</span>
+                    <h3 className="text-lg font-semibold text-gray-900 leading-tight">
+                        {car.model}
+                    </h3>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-1 leading-tight">{car.model}</h3>
                 <p className="text-lg font-bold text-gray-800">${car.price.toLocaleString()}</p>
             </div>
         </Link>
@@ -344,7 +422,7 @@ const CarListings: React.FC<CarListingsProps> = ({ cars }) => (
 
 // --- Main LuxuryCar Page Component ---
 const LuxuryCar: React.FC = () => {
-    const strapiBaseUrl = "http://localhost:1337";
+    const strapiBaseUrl = "http://localhost:1337"; // IMPORTANT: Verify this matches your Strapi server URL
 
     const [allCars, setAllCars] = useState<Car[]>([]);
     const [loading, setLoading] = useState(true);
@@ -356,7 +434,22 @@ const LuxuryCar: React.FC = () => {
     const [minPrice, setMinPrice] = useState(0);
     const [maxPrice, setMaxPrice] = useState(500000);
     const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+    const [selectedSoldStatus, setSelectedSoldStatus] = useState<'all' | 'sold' | 'not-sold'>('all');
     const [filteredCars, setFilteredCars] = useState<Car[]>([]);
+
+    // Define your hardcoded list of available brands here
+    // IMPORTANT: These names MUST exactly match the brand names you have in Strapi (e.g., "Ferrari", not "ferrari")
+    const predefinedAvailableBrands: string[] = [
+        "Audi",
+        "BMW",
+        "Bugatti",
+        "Ferrari",
+        "Lamborghini",
+        "Mercedes-Benz",
+        "Porsche",
+        "Rolls-Royce",
+        // Add all other brands you want to show in the filter sidebar
+    ].sort(); // Sort them alphabetically for a clean display
 
     useEffect(() => {
         const fetchAllData = async () => {
@@ -366,102 +459,158 @@ const LuxuryCar: React.FC = () => {
             try {
                 // 1. Fetch Luxury Heroes Data for Navbar Logo
                 const heroApiUrl = `${strapiBaseUrl}/api/luxury-heroes?populate[basicinfo][populate]=companyLogo`;
+                console.log("Fetching Navbar Logo from:", heroApiUrl);
                 const heroResponse = await fetch(heroApiUrl);
                 if (!heroResponse.ok) {
                     throw new Error(`HTTP error fetching hero data! Status: ${heroResponse.status}`);
                 }
                 const heroJson = await heroResponse.json();
+                console.log("Raw Strapi API Response for Navbar Logo:", heroJson);
                 if (heroJson?.data?.length > 0) {
                     const logoData = heroJson.data[0].attributes?.basicinfo?.companyLogo?.data;
                     setCompanyLogoUrl(getMediaUrl(logoData, strapiBaseUrl));
                 } else {
                     setCompanyLogoUrl("https://placehold.co/40x40/ffffff/000000?text=L");
+                    console.warn("No luxury-hero data found or no companyLogo in Strapi. Using placeholder logo.");
                 }
 
                 // 2. Fetch Car Details Data
-                // IMPORTANT: Ensure 'carSliderImg' is populated to get all images
-                // The image_d2d87a.png and image_d3485a.png show 'carPic' and 'carSliderImg' fields.
-                // We'll populate both to ensure flexibility, but 'carSliderImg' will be used for the slider.
-                const response = await fetch(`${strapiBaseUrl}/api/cars?populate=carImage,brandLogo,carSliderImg,slug`);
+                // The 'Brand' field itself will be returned directly as it's an enumeration.
+                // Added 'display' to populate to ensure it's fetched from Strapi
+                const carsApiUrl = `${strapiBaseUrl}/api/cars?populate=carImage,brandLogo,carSliderImg,slug,carSold,display`;
+                console.log("Fetching Cars from:", carsApiUrl);
+                const response = await fetch(carsApiUrl);
+
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    // Check for specific HTTP errors
+                    if (response.status === 403 || response.status === 401) {
+                        throw new Error(`Authentication/Permission Error: Check Strapi roles and permissions for 'Car' collection. Status: ${response.status}`);
+                    }
+                    throw new Error(`HTTP error fetching cars! Status: ${response.status}`);
                 }
                 const responseData = await response.json();
 
+                console.log("Raw Strapi API Response for Cars:", responseData); // VERY IMPORTANT FOR DEBUGGING!
+
+                // Check if responseData.data is an array and has items
+                if (!responseData.data || !Array.isArray(responseData.data) || responseData.data.length === 0) {
+                    console.warn("Strapi /api/cars returned no data or empty array.");
+                    setAllCars([]);
+                    setFilteredCars([]);
+                    setLoading(false);
+                    return; // Exit early if no data
+                }
+
                 const loadedCars: Car[] = responseData.data.map((strapiCar: StrapiCarData) => {
-                    const brand = strapiCar.attributes.carBrand || '';
+                    // CORRECTED: Extract 'Brand' directly as it's an enumeration string.
+                    const Brand = strapiCar.attributes.Brand || ''; // Access strapiCar.attributes.Brand
+
+                    console.log(`Processing car: ${strapiCar.attributes.carName || 'Unknown Name'}, Extracted Brand: '${Brand}', Slug: '${strapiCar.attributes.slug}'`);
+
                     const carSlug = strapiCar.attributes.slug;
+                    if (!carSlug) {
+                        console.warn(`Car "${strapiCar.attributes.carName}" (ID: ${strapiCar.id}) has no slug and will be skipped.`);
+                        return null; // Return null for cars without a slug, to be filtered out later
+                    }
 
                     const priceString = strapiCar.attributes.carPrice;
                     const parsedPrice = parseFloat(priceString.replace(/[^0-9.-]+/g, ""));
                     const price = isNaN(parsedPrice) ? 0 : parsedPrice;
 
-                    // Get slider images from carSliderImg
                     const sliderImages = strapiCar.attributes.carSliderImg?.data
                         ? strapiCar.attributes.carSliderImg.data.map(img => getMediaUrl(img, strapiBaseUrl))
                         : [];
 
-
-                    // The main image for the card can be the first slider image, or carImage, or a placeholder
+                    // Use the first slider image, then carImage, then a placeholder
                     const imageUrl = sliderImages[0] || getMediaUrl(strapiCar.attributes.carImage?.data, strapiBaseUrl)
-                        || `https://placehold.co/600x400/cccccc/ffffff?text=${encodeURIComponent(strapiCar.attributes.carName)}`;
+                        || `https://placehold.co/600x400/cccccc/ffffff?text=${encodeURIComponent(strapiCar.attributes.carName || 'No Image')}`;
 
-                    const brandLogoPlaceholder = brand ? encodeURIComponent(brand.charAt(0)) : '';
+                    const brandLogoPlaceholder = Brand ? encodeURIComponent(Brand.charAt(0)) : ''; // CORRECTED: Use Brand
+                    // Assuming brandLogo is a field directly on the Car, or can be passed from Brand relation
                     const brandLogoUrl = getMediaUrl(strapiCar.attributes.brandLogo?.data, strapiBaseUrl)
                         || `https://placehold.co/20x20/cccccc/ffffff?text=${brandLogoPlaceholder}`;
+
 
                     return {
                         id: strapiCar.id,
                         model: strapiCar.attributes.carName,
-                        brand: brand,
+                        Brand: Brand, // CORRECTED: This now correctly holds the brand name string
                         price: price,
                         slug: carSlug,
-                        imageUrl: imageUrl, // Now potentially the first slider image
+                        imageUrl: imageUrl,
                         brandLogoUrl: brandLogoUrl,
-                        sliderImages: sliderImages, // Store the array of slider image URLs
-                        isSold: strapiCar.attributes.isSold || false,
+                        sliderImages: sliderImages,
+                        isSold: strapiCar.attributes.carSold || false,
+                        display: strapiCar.attributes.display ?? true, // NEW: Default to true if 'display' is not explicitly set in Strapi
                     };
-                }).filter((car: Car) => car.slug);
+                }).filter(Boolean); // Filter out any null entries (e.g., cars without slugs)
 
+                console.log("All cars loaded into state (after processing and filtering for slug):", loadedCars);
                 setAllCars(loadedCars);
-                setFilteredCars(loadedCars);
+                setFilteredCars(loadedCars); // Initialize filtered cars with all cars
 
                 if (loadedCars.length > 0) {
                     const maxFetchedPrice = Math.max(...loadedCars.map(car => car.price));
                     setMinPrice(0);
                     setMaxPrice(maxFetchedPrice);
+                } else {
+                    setMinPrice(0);
+                    setMaxPrice(500000); // Reset or set default max price if no cars loaded
                 }
 
             } catch (e: any) {
                 console.error("Failed to fetch data:", e);
-                setError(`Failed to load content: ${e.message}. Please check your Strapi server and network connection.`);
+                setError(`Failed to load content: ${e.message}. Please check your Strapi server, URL, and network connection.`);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchAllData();
-    }, [strapiBaseUrl]);
+    }, [strapiBaseUrl]); // Dependency array: re-run if strapiBaseUrl changes (unlikely)
 
+    // This useEffect applies filtering whenever relevant state variables change
     useEffect(() => {
-        let temp = [...allCars];
+        let temp = [...allCars]; // Start with a fresh copy of all cars
+
+        // Apply search term filter
         if (searchTerm) {
             temp = temp.filter(c =>
                 c.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                c.brand.toLowerCase().includes(searchTerm.toLowerCase())
+                c.Brand.toLowerCase().includes(searchTerm.toLowerCase()) // CORRECTED: Access c.Brand
             );
         }
-        temp = temp.filter(c => c.price >= minPrice && c.price <= maxPrice);
-        if (selectedBrands.length > 0) {
-            temp = temp.filter(c => selectedBrands.includes(c.brand));
-        }
-        setFilteredCars(temp);
-    }, [searchTerm, minPrice, maxPrice, selectedBrands, allCars]);
 
-    const availableBrands = [...new Set(allCars.map(c => c.brand).filter(Boolean))].sort();
+        // Apply price range filter
+        temp = temp.filter(c => c.price >= minPrice && c.price <= maxPrice);
+
+        // Apply brand filter
+        if (selectedBrands.length > 0) {
+            // Trim whitespace from both ends for a robust comparison
+            temp = temp.filter(c => selectedBrands.map(s => s.trim()).includes(c.Brand.trim())); // CORRECTED: Access c.Brand
+        }
+
+        // Apply sold status filter
+        if (selectedSoldStatus === 'sold') {
+            temp = temp.filter(c => c.isSold);
+        } else if (selectedSoldStatus === 'not-sold') {
+            temp = temp.filter(c => !c.isSold);
+        }
+
+        // NEW: Apply display filter - only show cars with display: true
+        temp = temp.filter(c => c.display === true);
+
+
+        setFilteredCars(temp);
+        console.log(`Filters applied. Showing ${temp.length} cars.`);
+    }, [searchTerm, minPrice, maxPrice, selectedBrands, selectedSoldStatus, allCars]); // Dependencies
+
+    // availableBrands is now the predefined list, as per your request
+    const availableBrands = predefinedAvailableBrands;
 
     return (
         <div className="font-sans text-gray-800 bg-gray-100 min-h-screen overflow-x-hidden flex flex-col">
+            {/* Custom scrollbar styling */}
             <style>{`
                 .custom-scrollbar::-webkit-scrollbar {
                     width: 8px;
@@ -495,13 +644,15 @@ const LuxuryCar: React.FC = () => {
                             maxPrice={maxPrice}
                             onMinPriceChange={e => setMinPrice(Math.min(Number(e.target.value), maxPrice))}
                             onMaxPriceChange={e => setMaxPrice(Math.max(Number(e.target.value), minPrice))}
-                            availableBrands={availableBrands}
+                            availableBrands={availableBrands} // This now comes from your predefined list
                             selectedBrands={selectedBrands}
                             onBrandChange={e => {
-                                const brand = e.target.value;
-                                if (e.target.checked) setSelectedBrands([...selectedBrands, brand]);
-                                else setSelectedBrands(selectedBrands.filter(b => b !== brand));
+                                const Brand = e.target.value; // CORRECTED: Use Brand
+                                if (e.target.checked) setSelectedBrands([...selectedBrands, Brand]);
+                                else setSelectedBrands(selectedBrands.filter(b => b !== Brand));
                             }}
+                            selectedSoldStatus={selectedSoldStatus}
+                            onSoldStatusChange={setSelectedSoldStatus}
                         />
                         <CarListings cars={filteredCars} />
                     </>

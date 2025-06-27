@@ -707,3 +707,16 @@ section{
 .footer{
   width: 100% !important;
 }
+
+.beforeFooter{
+  height: 50vh !important;
+}
+
+.beforefooter_text{
+  color: white !important;
+}
+
+.mainCard, .ourValues, .aboutUsSec{
+  height: 100% !important;
+}
+

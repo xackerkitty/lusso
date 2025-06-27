@@ -1,0 +1,39 @@
+{
+  "kind": "singleType",
+  "collectionName": "contact_us_pages",
+  "info": {
+    "singularName": "contact-us-page",
+    "pluralName": "contact-us-pages",
+    "displayName": "contactUsPage",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "contactUsTitle": {
+      "type": "string"
+    },
+    "contactUsDesc": {
+      "type": "string"
+    },
+    "addressTitle": {
+      "type": "string"
+    },
+    "AddressDesc": {
+      "type": "text"
+    },
+    "phoneTitle": {
+      "type": "string"
+    },
+    "phoneDesc": {
+      "type": "text"
+    },
+    "emailTitle": {
+      "type": "string"
+    },
+    "emailDesc": {
+      "type": "string"
+    }
+  }
+}
